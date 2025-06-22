@@ -1,0 +1,1189 @@
+{
+  "code": 200,
+  "data": [
+    {
+      "url": "https://www.cian.ru/rent/flat/299675933",
+      "title": "Комната Москва Люблинская ул., 5К2 (20.0 м²)",
+      "price": 0,
+      "price_metric": "₽ в месяц",
+      "time": "2025-06-21 14:25:32",
+      "phone": "899212XXXXX",
+      "person": "Евгений Черняк (Частный маклер)",
+      "person_type": "Агентство",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "Люблинская ул., 5К2",
+      "description": "БЕЗ ХОЗЯЕВ. Сдается просторная комната в 2-комнатной квартире. Есть: 2-спальная кровать с матрацем, вместительный шкаф с зеркалом, столы, стулья, прихожая с обувницей, кухонный гарнитур, холодильник, стиральная машина с большой загрузкой(6,5 кг), микроволновка, газовая плита, Wi-Fi Интернет, застекленная лоджия. Обсуждается установка дополнительной мебели или заезд со своей. Рядом с домом есть много парковочных мест, магазины: Пятерочка, Ярче, ВкусВилл; кафе, рестораны, аптека, фитнес. Чистый ухоженный подъезд с мусоропроводом, 2-мя лифтами. Пешая доступность до метро и МДЦ-2 Текстильщики(10 мин). В соседней комнате проживает 1 парень(снимает). Оперативный показ, заселение 29 июня.",
+      "nedvigimost_type": "Сдам",
+      "avitoid": 299675933,
+      "cat1_id": 1,
+      "cat2_id": 3,
+      "source": "cian.ru",
+      "phone_protected": 1,
+      "km_do_metro": 1,
+      "time_source_created": "2024-03-16 19:24:26",
+      "time_source_updated": "2025-06-21 14:26:34",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "ЮВАО",
+      "params2": {
+        "О здании": {
+          "Год постройки": 1969
+        }
+      },
+      "id": 634843142,
+      "cat1": "Недвижимость",
+      "cat2": "Комнаты",
+      "images": [
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2509510615-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2509510617-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939192-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2509510618-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2509510619-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126943449-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939232-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939211-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939203-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939208-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939174-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939198-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939181-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939238-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939185-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126932889-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2126939216-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/komnata-moskva-lyublinskaya-ulica-2509509317-1.jpg"
+        }
+      ],
+      "param_2517": "Сдам",
+      "param_2574": "На длительный срок",
+      "param_3038": "20.0",
+      "param_2603": 2,
+      "param_2838": 6,
+      "param_2938": 12,
+      "param_7184": "Есть",
+      "param_7187": "50",
+      "param_7188": 18500,
+      "coords": {
+        "lat": "55.716422",
+        "lng": "37.729763"
+      },
+      "person_type_id": 2,
+      "nedvigimost_type_id": 2,
+      "source_id": 4,
+      "contactname": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "не определен",
+      "phone_region": "не определен",
+      "params": {
+        "Тип объявления": "Сдам",
+        "Срок аренды": "На длительный срок",
+        "Площадь комнаты": "20.0",
+        "Комнат в квартире": 2,
+        "Этаж": 6,
+        "Этажей в доме": 12,
+        "Комиссия": "Есть",
+        "Размер комиссии": "50",
+        "Залог": 18500
+      },
+      "count_ads_same_phone": null
+    },
+    {
+      "url": "https://www.cian.ru/rent/commercial/318420581",
+      "title": "Помещение свободного назначения в Москва Люблинская ул., 4к1А (777 м²)",
+      "price": 0,
+      "price_metric": "₽ в месяц",
+      "time": "2025-06-21 14:23:09",
+      "phone": "891530XXXXX",
+      "person": "Замоскворечье",
+      "person_type": "Агентство",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "Люблинская ул., 4к1А",
+      "description": "==ЛОТ 219974 ==Сдается тоpговoе пoмещениe 777 кв. м. на территopии тopгoвого центра \"Moст\". 20 шагoв oт метро Текстильщики. Под ресторан с хорошей, интересной кухней!!! Помещение готово для ресторана!!! Первая линия! Отличный трафик! 15-20 тысяч человек. Круглосуточная охрана. Круглосуточный доступ 24 часа Помещение видовое с отличным ремонтом. Широкое витринное остекление! Потолки 3. 7 метра Отопление центральное, мокрые точки, приточно-вытяжная вентиляция. Комфортные условия работы. Парковка. Коммунальные услуги входят в стоимость аренды (кроме электричества). Гибкие условия по аренде. Арендные каникулы обсуждаются.",
+      "nedvigimost_type": "Сдам",
+      "avitoid": 318420581,
+      "cat1_id": 1,
+      "cat2_id": 7,
+      "source": "cian.ru",
+      "phone_protected": 1,
+      "km_do_metro": 0.083,
+      "time_source_created": "2025-06-05 12:56:22",
+      "time_source_updated": "2025-06-21 14:53:05",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "ЮВАО",
+      "params2": {
+        "О здании": {
+          "Тип здания": "Административное здание",
+          "Год постройки": 1990
+        }
+      },
+      "id": 665146528,
+      "cat1": "Недвижимость",
+      "cat2": "Коммерческая недвижимость",
+      "images": [
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2513737075-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2513737084-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2513737105-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2513737111-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2513737123-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2513737128-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2513737142-1.jpg"
+        }
+      ],
+      "param_4867": "Сдам",
+      "param_4887": "Помещение свободного назначения",
+      "param_4922": 777,
+      "param_12880": 3,
+      "param_12881": 4,
+      "coords": {
+        "lat": "55.708237",
+        "lng": "37.730661"
+      },
+      "person_type_id": 2,
+      "nedvigimost_type_id": 2,
+      "source_id": 4,
+      "contactname": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "Мобильные ТелеСистемы",
+      "phone_region": "г. Москва и Московская область",
+      "params": {
+        "Тип объявления": "Сдам",
+        "Вид объекта": "Помещение свободного назначения",
+        "Общая площадь": 777,
+        "Этаж": 3,
+        "Этажность здания": 4
+      },
+      "count_ads_same_phone": 2
+    },
+    {
+      "url": "https://www.cian.ru/rent/flat/318900018",
+      "title": "Студия Москва Грайвороновская ул., 4 (21.0 м²)",
+      "price": 0,
+      "price_metric": "₽ в месяц",
+      "time": "2025-06-21 14:01:23",
+      "phone": "892307XXXXX",
+      "person": "недоступно",
+      "person_type": "Частное лицо (фильтр)",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "Грайвороновская ул., 4",
+      "description": "Уютные Текстиля\nпредлагается в аренду очень стильное и эргономичное помещение-студия в 12ти минутах ходьбы по зеленым уютным дворикам от м. Текстильщики.  До центральных улиц Москвы можно добраться за 25 минут.\nИНФРАСТРУКТУРА\nКомплекс походит на клубный дом, три невысоких в три этажа корпуса, на территории - зоны отдыха, зоны игры в настольный теннис и столы для игр в шашки и шахматы, есть кафе, на территории расположен ПВЗ Озон. На противоположной стороне улицы находится ЖК от ПИК, с возможностью пользоваться доступами к кофейням и магазинчикам. Для тех, кто передвигается на автомобиле, также очень удобная транспортная развязка, бонусом - всегда доступная парковка на закрытой территории без дополнительной платы. В инфраструктуру комплекса также входит тренажерный зал без дополнительной платы\nЧТО ВНУТРИ\nСтудия оснащена всем необходимым для комфортной жизни:\n- стиральная машина с сушкой; \n- фильтры очистки питьевой воды;\n- двухкомфорочная варочная панель;\n- вытяжка;\n- посудомоечная машина;\n- холодильник;\n- микроволновая печь;\n- утюг;\n- кондиционер;\n- пылесос;\n- достаточное количество мест хранения.\n- уютная подсветка.\n\nСтудия подойдет для одного/пары активных горожан, не сидящих на месте - заезжай и живи. Только после ремонта, все новое, никто не жил, техникой не пользовались. успевайте быть первыми! Фотографии соответствуют реальности.\n\nОплата квитанции перевыставляется отдельно \n\nСобственник.",
+      "nedvigimost_type": "Сдам",
+      "avitoid": 318900018,
+      "cat1_id": 1,
+      "cat2_id": 2,
+      "source": "cian.ru",
+      "phone_protected": 1,
+      "km_do_metro": 1.167,
+      "time_source_created": "2025-06-19 15:58:44",
+      "time_source_updated": "2025-06-21 14:22:35",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "ЮВАО",
+      "id": 666058487,
+      "cat1": "Недвижимость",
+      "cat2": "Квартиры",
+      "images": [
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530629996-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575326-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575342-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575343-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575340-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575353-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575352-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575351-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575360-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575361-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575362-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575367-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530619049-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575374-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575376-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530629993-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575388-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575396-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530619040-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530629995-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575437-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575447-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530575468-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530608174-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530608190-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530608189-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530626777-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530608158-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530608159-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530608211-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-grayvoronovskaya-ulica-2530608219-1.jpg"
+        }
+      ],
+      "param_1943": "Сдам",
+      "param_2016": "На длительный срок",
+      "param_1945": "Студия",
+      "param_2019": "Студия",
+      "param_2515": "21.0",
+      "param_2315": 2,
+      "param_2415": 3,
+      "param_12723": "2.0",
+      "param_12724": "16.5",
+      "param_6862": "Нет",
+      "param_6866": 70000,
+      "coords": {
+        "lat": "55.717021",
+        "lng": "37.726754"
+      },
+      "person_type_id": 3,
+      "nedvigimost_type_id": 2,
+      "source_id": 4,
+      "contactname": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "не определен",
+      "phone_region": "не определен",
+      "params": {
+        "Тип объявления": "Сдам",
+        "Срок аренды": "На длительный срок",
+        "Количество комнат": "Студия",
+        "Площадь": "21.0",
+        "Этаж": 2,
+        "Этажей в доме": 3,
+        "Площадь кухни": "2.0",
+        "Жилая площадь": "16.5",
+        "Комиссия": "Нет",
+        "Залог": 70000
+      },
+      "count_ads_same_phone": null
+    },
+    {
+      "url": "https://realty.ya.ru/offer/619922633094237160/",
+      "title": "1-комнатная квартира: Москва, 8-я улица Текстильщиков, 5В (28.8 м²)",
+      "price": 0,
+      "time": "2025-06-21 13:59:17",
+      "phone": "893629XXXXX",
+      "person": "Миэль (Миэль)",
+      "person_type": "Агентство",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "8-я улица Текстильщиков, 5В",
+      "description": "Код объекта: 1646320.\n Отличная инвестиция, дом под ренновацию, однокомнатная квартира с ремонтом, мебелью и техникой без обременений продается",
+      "nedvigimost_type": "Продам",
+      "avitoid": "619922633094237160",
+      "cat1_id": 1,
+      "cat2_id": 2,
+      "source": "realty.yandex.ru",
+      "phone_protected": 1,
+      "km_do_metro": 1.25,
+      "time_source_created": "2025-06-21 14:08:50",
+      "time_source_updated": "2025-06-21 14:08:50",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "",
+      "id": 666199842,
+      "cat1": "Недвижимость",
+      "cat2": "Квартиры",
+      "images": [
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/15480901/e5f835a0-ad2e-4fd6-b884-aa4701693171/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/16445801/1719629e-2063-4fe8-8770-0ec2afcde70c/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/14717586/ce5709a3-d7f1-47fa-9b5b-26e06e88910a/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/13580435/15cf8a72-7918-41fd-a0f9-90cfb7c7c680/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/15049560/9e463059-168f-4c9b-9605-5b16e1a27b6f/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/14635834/4e522ca6-6016-43dc-95a3-ffcd1af7a8c1/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/14789446/5ea3624f-a84f-4381-8782-0612eb943a93/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/13844304/3876af55-695b-4045-a31c-a45b73a7ccd5/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/15480901/08a9d507-69cb-4fff-8353-92331476563f/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/15363439/ed0a41a0-a5a6-4cc9-b9d0-ad33d3d1f261/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/14671802/43e37d0c-ceb3-4be9-a5ca-d92fcf70562e/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/16304208/8d3373b9-d6ea-401e-b729-cad2cb89219f/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/15480901/440df51e-3a3f-432a-88b6-3a915e0757d5/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/13844304/d5647cf4-4ece-4371-bc45-9f2b7439a082/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/15352718/c67e4439-7da7-4c2a-8581-bab06135bc75/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/13580435/8d43e7aa-9a7e-498a-bcbc-20a5b80f9f48/large"
+        },
+        {
+          "imgurl": "https://avatars.mds.yandex.net/get-realty-offers/13580435/db65fee4-c69b-4efa-adf0-15a38d4faca7/large"
+        }
+      ],
+      "param_1943": "Продам",
+      "param_1945": 1,
+      "param_1957": "Вторичка",
+      "param_2313": 28.8,
+      "param_2113": 3,
+      "param_2213": 5,
+      "param_12721": 5,
+      "param_12722": 19,
+      "param_12867": 1960,
+      "coords": {
+        "lat": "55.70492",
+        "lng": "37.741367"
+      },
+      "person_type_id": 2,
+      "nedvigimost_type_id": 1,
+      "source_id": 3,
+      "contactname": "",
+      "price_metric": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "не определен",
+      "phone_region": "не определен",
+      "params": {
+        "Тип объявления": "Продам",
+        "Количество комнат": 1,
+        "Вид объекта": "Вторичка",
+        "Площадь": 28.8,
+        "Этаж": 3,
+        "Этажей в доме": 5,
+        "Площадь кухни": 5,
+        "Жилая площадь": 19,
+        "Срок сдачи": 1960
+      },
+      "count_ads_same_phone": 208
+    },
+    {
+      "url": "https://sob.ru/prodazha-komnat-moskva-3-komn-metro-tekstilschiki/card-793806539",
+      "title": "Продается комната в 3-комнатной квартире",
+      "price": 0,
+      "time": "2025-06-21 13:17:01",
+      "phone": "896729XXXXX",
+      "person": "АН НьюСити",
+      "person_type": "Агентство",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "Волжский бул., 26к1",
+      "nedvigimost_type": "Продам",
+      "avitoid": "793806539",
+      "cat1_id": 1,
+      "cat2_id": 3,
+      "source": "sob.ru",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "",
+      "description": "Продаётся комната в 3х комнатной квартире. Площадь комнаты 15 кВ.м с балконом. Дом кирпичный, 5й этаж 5ти этажного дома. Комната с хорошим ремонтом, по документам это доля 29/100 прямоугольной формы, светлая, теплая, в трехкомнатной коммунальной квартире. В доме недавно выполнен ремонт, заменены батареи. В квартире выполнен косметический ремонт. Комната имеет собственный балкон с окном на юго-запад, в тихий двор. Квартира просторная, с высокими потолками 2,7м. Окна кухни выходят на восток, на Волжский бульвар. Комнаты изолированные. Счета на оплату коммунальных услуг у собственников раздельные, за свет - общий. Раньше по документам была коммунальная квартира, затем разделили. При желании и согласованно с соседями можно вернуть по документам к коммунальной собственности и комната станет в цене дороже. Также собственники в будущем рассматривают совместную продажу квартиры, что также при продаже выгоднее, чем стоимость доли. Удобно купить для московской прописки или для сдачи внаем (легко сдать за 20 тысяч). Соседи сдают. Кухня просторная, есть свой холодильник на кухне, место для кухонных принадлежностей, установлены две стиральные машинки на 2 комнаты. Санузел раздельный. До метро Текстильщики пешком 10 минут, Кузьминки 17 минут, Волжская 25 минут. В собственности 20 лет Продаётся по переуступке права. Любая ипотека подходит. Звоните!",
+      "id": 641431180,
+      "cat1": "Недвижимость",
+      "cat2": "Комнаты",
+      "images": [
+        {
+          "imgurl": "https://images.sob.ru/n9bb33d5e481e342a185d5ec15668f55d_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/nd534b82df785301c41f009215db05ceb_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n0b6f6811a0e64721ee834381f2e811c0_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/nfc6a846d563eeef2a4a60c90da30b4b3_1920x1080"
+        }
+      ],
+      "param_2517": "Продам",
+      "param_2836": "64",
+      "param_2545": "3",
+      "param_2636": "5",
+      "param_2736": "5",
+      "coords": {
+        "lat": "55.706741",
+        "lng": "37.745564"
+      },
+      "person_type_id": 2,
+      "nedvigimost_type_id": 1,
+      "source_id": 5,
+      "contactname": "",
+      "km_do_metro": 0,
+      "price_metric": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "Вымпел-Коммуникации",
+      "phone_region": "г. Москва и Московская область",
+      "phone_protected": null,
+      "params": {
+        "Тип объявления": "Продам",
+        "Площадь комнаты": "64",
+        "Комнат в квартире": "3",
+        "Этаж": "5",
+        "Этажей в доме": "5"
+      },
+      "count_ads_same_phone": 40
+    },
+    {
+      "url": "https://sob.ru/prodazha-komnat-moskva-3-komn-metro-tekstilschiki/card-918264361",
+      "title": "Продается комната в 3-комнатной квартире",
+      "price": 0,
+      "time": "2025-06-21 13:15:57",
+      "phone": "849592XXXXX",
+      "person": "Простор-недвижимость",
+      "person_type": "Агентство",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "Волжский бул., 26к1",
+      "nedvigimost_type": "Продам",
+      "avitoid": "918264361",
+      "cat1_id": 1,
+      "cat2_id": 3,
+      "source": "sob.ru",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "",
+      "description": "Код объекта: 1364360. Срочно продается отдельная комната с балконом (доля 29% в трехкомнатной квартире). Сейчас сдается 2 студентам за 20.000 руб. Можно оставить арендаторов или освободим комнату, заключен краткосрочный договор. Кирпичный, теплый дом, окно во двор. Высокие потолки. Полгода назад был сделан косметический ремонт с заменой плитки в ванной комнате. Два года назад сделали ремонт в подъездах и фасаде. 1 собственник (бывшая коммуналка). В пешей доступности две станции метро, школы, детские сады, спорткомплекс Москва и парк Кузьминки. Свободная продажа, быстрый выход на сделку, обременений и долгов нет. Возможна продажа всей квартиры, соседи не против. Можно в ипотеку с лучшей кредитной программой для заемщика. Возможен обмен на вашу недвижимость, в т.ч из-под залога и другие альтернативные варианты, в том числе, загородной недвижимости, коммерческой и/или новостройки.",
+      "id": 656115016,
+      "cat1": "Недвижимость",
+      "cat2": "Комнаты",
+      "images": [
+        {
+          "imgurl": "https://images.sob.ru/n7fa6bcd195a35981fa5ed67cb7be20f1_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n08f843e1e15874e2c13989bcfdf55a56_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n81a3bf466fa8ee9a0f7f2564c9984526_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n2aacacc8124501677287b90465a16b94_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/nb44b79da0b12e4af0479a7e01ae1ac4e_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n9931b321c1378ec25d48475c004629ac_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n5ddd1324f73e14beacd4bb187645a32a_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n87ed6cb457a0dbead271e06fd6256724_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n20564782076392328b1e4f79cb7dabc4_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/nb3c306ec9273f91f6b5c4aade10d338c_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/ndd91276d55580b5f80c46ebf8ec9c933_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/ne5b7d2ac67883d79bb636c2dfd17f77e_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n6cbc09b478f53354be89a20c094e5b0c_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/n80ad237180bbf9b1869a2db1c2aa1834_1920x1080"
+        },
+        {
+          "imgurl": "https://images.sob.ru/nd060497e2139a759fe1650f2c47234f6_1920x1080"
+        }
+      ],
+      "param_2517": "Продам",
+      "param_2836": "72",
+      "param_2545": "3",
+      "param_2636": "5",
+      "param_2736": "5",
+      "coords": {
+        "lat": "55.706766",
+        "lng": "37.745555"
+      },
+      "person_type_id": 2,
+      "nedvigimost_type_id": 1,
+      "source_id": 5,
+      "contactname": "",
+      "km_do_metro": 0,
+      "price_metric": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "не определен",
+      "phone_region": "не определен",
+      "phone_protected": null,
+      "params": {
+        "Тип объявления": "Продам",
+        "Площадь комнаты": "72",
+        "Комнат в квартире": "3",
+        "Этаж": "5",
+        "Этажей в доме": "5"
+      },
+      "count_ads_same_phone": 1823
+    },
+    {
+      "url": "https://www.cian.ru/rent/flat/318715732",
+      "title": "4-к кв. Москва 1-й Грайвороновский проезд, 3 (100.0 м²)",
+      "price": 0,
+      "price_metric": "₽ в месяц",
+      "time": "2025-06-21 12:02:53",
+      "phone": "891677XXXXX",
+      "person": "Виктория Самойлова (AGORA)",
+      "person_type": "Агентство",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "1-й Грайвороновский проезд, 3",
+      "description": "Сдаeтся прocторная трexкoмнaтнaя квaртира с бoльшими куxней-гостиной и приxoжeй, двумя сaнузлами и клaдoвкoй. B квapтиpe имеeтся мeбeль и бытовaя тexника (пocудомоечнaя мaшина, хoлoдильник, стиpaльная мaшина и др.). Квapтира прeкраcнo пoдхoдит для проживания семьи с детьми: закрытый двор, современная детская площадка, магазины, аптека и кофейня. При заселении подписывается договор и оплачивается первый и последний месяц проживания + залог, который возвращается при выезде. Счётчики воды и электричества оплачиваются дополнительно по потреблению. Дополнительно можем сдать арендаторам удобное место подземном паркинге.",
+      "nedvigimost_type": "Сдам",
+      "avitoid": 318715732,
+      "cat1_id": 1,
+      "cat2_id": 2,
+      "source": "cian.ru",
+      "phone_protected": 1,
+      "km_do_metro": 1.583,
+      "time_source_created": "2025-06-14 14:08:04",
+      "time_source_updated": "2025-06-21 11:26:38",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "ЮВАО",
+      "id": 665682287,
+      "cat1": "Недвижимость",
+      "cat2": "Квартиры",
+      "images": [
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523657325-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523657320-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523656452-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523642046-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523656444-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523656439-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523657324-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523657328-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523642074-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523657321-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523657319-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523657326-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523657330-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523642059-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523642061-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523642063-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2523642043-1.jpg"
+        }
+      ],
+      "param_1943": "Сдам",
+      "param_2016": "На длительный срок",
+      "param_1945": 4,
+      "param_2019": 4,
+      "param_2515": "100.0",
+      "param_2315": 13,
+      "param_2415": 24,
+      "param_12723": "21.0",
+      "param_12724": "60.0",
+      "param_6862": "Есть",
+      "param_6865": "40",
+      "param_6866": 50000,
+      "coords": {
+        "lat": "55.719343",
+        "lng": "37.72502"
+      },
+      "person_type_id": 2,
+      "nedvigimost_type_id": 2,
+      "source_id": 4,
+      "contactname": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "Мобильные ТелеСистемы",
+      "phone_region": "г. Москва и Московская область",
+      "params": {
+        "Тип объявления": "Сдам",
+        "Срок аренды": "На длительный срок",
+        "Количество комнат": 4,
+        "Площадь": "100.0",
+        "Этаж": 13,
+        "Этажей в доме": 24,
+        "Площадь кухни": "21.0",
+        "Жилая площадь": "60.0",
+        "Комиссия": "Есть",
+        "Размер комиссии": "40",
+        "Залог": 50000
+      },
+      "count_ads_same_phone": 1
+    },
+    {
+      "url": "https://www.cian.ru/rent/flat/318836632",
+      "title": "1-к кв. Москва 1-й Грайвороновский проезд, 13к1 (33.7 м²)",
+      "price": 0,
+      "price_metric": "₽ в месяц",
+      "time": "2025-06-21 12:02:47",
+      "phone": "893155XXXXX",
+      "person": "Ольга Игоревна Варфоломеева (Этажи Москва)",
+      "person_type": "Агентство",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "1-й Грайвороновский проезд, 13к1",
+      "description": "Номер в базе: 8666950. Вашему вниманию предлагается уютная квартира с большой кухней-гостиной, совмещенным санузлом и отдельной спальней  в ЖК \"Волжский парк\". \n\nО КВАРТИРЕ:\n- Квартира в новом доме, с новым ремонтом\n- Идеально подойдет для одного/двух человек;\n- В квартире есть необходимая мебель и техника (холодильник,электрическая плита, духовой шкаф, микроволновка, вытяжка, стиральная машина); \n- Стол и стулья докупит арендатор; \n- Готовы рассмотреть с детьми, но без животных. \n\nИНФРАСТРУКТУРА.\n- Рядом есть места для отдыха и прогулок — парки, бульвары и пруды. Для любителей спорта — большой спортивный комплекс \"Москвич\" с бассейном, ледовым катком и большим количеством взрослых и детских секций\n- Магазины, стоматология, аптека, пункты выдачи, кафе\n\n\n\n\n\nКод пользователя: 52658",
+      "nedvigimost_type": "Сдам",
+      "avitoid": 318836632,
+      "cat1_id": 1,
+      "cat2_id": 2,
+      "source": "cian.ru",
+      "phone_protected": 1,
+      "km_do_metro": 1.917,
+      "time_source_created": "2025-06-18 10:05:03",
+      "time_source_updated": "2025-06-21 11:48:31",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "ЮВАО",
+      "id": 665936671,
+      "cat1": "Недвижимость",
+      "cat2": "Квартиры",
+      "images": [
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528276883-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528276908-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528276935-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528276969-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528276999-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277021-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277065-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277089-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277107-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277123-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277152-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277162-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277186-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277204-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277225-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277260-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277295-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277333-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277358-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277390-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277422-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277450-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277468-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2528277477-1.jpg"
+        }
+      ],
+      "param_1943": "Сдам",
+      "param_2016": "На длительный срок",
+      "param_1945": 1,
+      "param_2019": 1,
+      "param_2515": "33.7",
+      "param_2315": 3,
+      "param_2415": 23,
+      "param_12723": "16.7",
+      "param_12724": 0,
+      "param_6862": "Есть",
+      "param_6865": "60",
+      "param_6866": 65000,
+      "param_2078": "Монолитный",
+      "coords": {
+        "lat": "55.721179",
+        "lng": "37.721498"
+      },
+      "person_type_id": 2,
+      "nedvigimost_type_id": 2,
+      "source_id": 4,
+      "contactname": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "не определен",
+      "phone_region": "не определен",
+      "params": {
+        "Тип объявления": "Сдам",
+        "Срок аренды": "На длительный срок",
+        "Количество комнат": 1,
+        "Площадь": "33.7",
+        "Этаж": 3,
+        "Этажей в доме": 23,
+        "Площадь кухни": "16.7",
+        "Жилая площадь": 0,
+        "Комиссия": "Есть",
+        "Размер комиссии": "60",
+        "Залог": 65000,
+        "Тип дома": "Монолитный"
+      },
+      "count_ads_same_phone": null
+    },
+    {
+      "url": "https://www.cian.ru/rent/flat/318903405",
+      "title": "2-к кв. Москва 1-й Грайвороновский проезд, 3Ак1 (54.0 м²)",
+      "price": 0,
+      "price_metric": "₽ в месяц",
+      "time": "2025-06-21 12:02:38",
+      "phone": "891753XXXXX",
+      "person": "недоступно",
+      "person_type": "Частное лицо (фильтр)",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "1-й Грайвороновский проезд, 3Ак1",
+      "description": "В ЖК Волжский парк впервые сдаётся евротрешка со всем необходимым для комфортного проживания.\nПланировка:кухня-гостиная, спальня,кабинет,санузел с ванной и гостевой санузел.\nИмеется наземная бесплатная парковка.\nЗакрытый внутренний двор. \nДом находится в районе с развитой инфраструктурой, в пешей доступности различные магазины,супермаркеты,Wildberries,Ozon, кафе,салоны красоты. \nНедалеко уютный сквер для прогулок.\nДо метро Текстильщики 10 мин. пешком.\nУдобный съезд на МСД.\nКвартира сдаётся напрямую от собственника без комиссии для арендаторов! \nОперативный показ.\nДве девушки, два парня и т.п. формы общежития не рассматриваются!!!",
+      "nedvigimost_type": "Сдам",
+      "avitoid": 318903405,
+      "cat1_id": 1,
+      "cat2_id": 2,
+      "source": "cian.ru",
+      "phone_protected": 1,
+      "km_do_metro": 1.5,
+      "time_source_created": "2025-06-19 17:30:56",
+      "time_source_updated": "2025-06-21 12:07:36",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "ЮВАО",
+      "params2": {
+        "О здании": {
+          "Год постройки": 2024
+        }
+      },
+      "id": 666194475,
+      "cat1": "Недвижимость",
+      "cat2": "Квартиры",
+      "images": [
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617304-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718203-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718232-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718181-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718200-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718233-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617289-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617282-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718228-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617281-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617259-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718201-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617295-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718187-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718202-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718195-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617298-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617288-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718207-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718189-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718190-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617269-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718192-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617283-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718193-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718188-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530617296-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/kvartira-moskva-1y-grayvoronovskiy-proezd-2530718197-1.jpg"
+        }
+      ],
+      "param_1943": "Сдам",
+      "param_2016": "На длительный срок",
+      "param_1945": 2,
+      "param_2019": 2,
+      "param_2515": "54.0",
+      "param_2315": 6,
+      "param_2415": 17,
+      "param_12723": "16.0",
+      "param_12724": "36.0",
+      "param_6862": "Нет",
+      "param_6866": 90000,
+      "coords": {
+        "lat": "55.71874",
+        "lng": "37.724768"
+      },
+      "person_type_id": 3,
+      "nedvigimost_type_id": 2,
+      "source_id": 4,
+      "contactname": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "Мобильные ТелеСистемы",
+      "phone_region": "г. Москва и Московская область",
+      "params": {
+        "Тип объявления": "Сдам",
+        "Срок аренды": "На длительный срок",
+        "Количество комнат": 2,
+        "Площадь": "54.0",
+        "Этаж": 6,
+        "Этажей в доме": 17,
+        "Площадь кухни": "16.0",
+        "Жилая площадь": "36.0",
+        "Комиссия": "Нет",
+        "Залог": 90000
+      },
+      "count_ads_same_phone": 2
+    },
+    {
+      "url": "https://www.cian.ru/rent/flat/318964047",
+      "title": "1-к кв. Москва Грайвороновская ул., 4С1 (25.0 м²)",
+      "price": 0,
+      "price_metric": "₽ за сутки",
+      "time": "2025-06-21 12:02:29",
+      "phone": "849522XXXXX",
+      "person": "Партнер Циан",
+      "person_type": "Агентство",
+      "city": "Москва",
+      "metro": "Текстильщики",
+      "address": "Грайвороновская ул., 4С1",
+      "description": "Добро пожаловать, меня зовут Вероника.  Я и моя команда приглашаем вас в гости в Москву и Санкт Петербург. Обращаясь ко мне в поисках жилья, вы можете быть уверены, что все фото соответствуют действительности\n\n\n\nНаша новая уютная, светлая студия, ЭТО \n\nОтличная локация\n\n Метро Текстильщики  в 10 минут пешком по прямой удобной дороге никуда не сворачивая (из метро выход номер 3)\n\n Бизнес-центры и выставочные центры у метро Текстильщики\n\n Городская клиническая больница у метро Текстильщики\n\n ТЦ Москва и Садовод в удобной транспортной доступности\n\n Аквапарк \"Фэнтази\" у метро Марьино\n\n Семейный парк развлечений \"Остров мечты\" в удобной транспортной доступности по ТТК\n\nСовременный и безопасный гостиничный комплекс TRETYACOV с бесплатным тренажерным залом (спортзал) бесплатной парковкой \n\nРазвитая инфраструктура - магазины, аптеки, кафе и рестораны, доставка еды и продуктов на любой вкус за пол часа\n\nНовая современная техника и наполнение для жизни без забот \n\n стиральная машина\n\nмикроволновая печь \n\nчайник, фен и утюг\n\nТелевизор \n\nИнтернет \n\n Комфортные спальные места  - кровати или раскладные диваны\n\nИ, разумеется, постельное бельё, полотенца, косметические принадлежности, всё что необходимо в поездке \n\nПостарались учесть всё, что вам так необходимо, чтобы чувствовать себя как дома \n\n\nПравила бронирования:\n\n1.   После оформления бронирования, пожалуйста, свяжитесь с нами, чтобы подтвердить детали: 1) даты бронирования 2) количество гостей 3) планируемое время приезда. Это очень важно, чтобы вы во время получили все необходимые инструкции. Заселение возможно круглосуточно, но инструкции необходимо получить заранее, максимум до 18:00 дня заселения.\n\n2.   Стандартное время заселения 15:00. Время выезда 12:00. Ранний заезд и поздний выезд возможны по предварительной договоренности и оплачиваются дополнительно (уточняйте, пожалуйста, у менеджера заранее).\n\n3.   Тариф невозвратный. Бесплатная отмена или изменение дат возможны не позднее, чем за 7 дней до приезда.\n\n4.   Если заселение после 18:00, потребуется заранее внести полную оплату и залог, так как у нас отсутствует круглосуточная стойка регистрации.\n\n5.   При заселении потребуется 1)паспорт чтобы оформить электронный договор аренды и 2)внести возвратный залог. Залог вносится через платежную систему по ссылке и замораживается на вашем счете, автоматически возвращается на ту же карту в течение суток после выезда (точные сроки зависят от вашего банка). Мы получаем залоговую сумму только в случае нарушений правил проживания.\n\n6.   Постельное бельё и полотенца предоставляются согласно указанному кол-ву гостей. Сообщите, пожалуйста, если вам потребуется больше комплектов заранее (оплачивается дополнительно).\n\n7.   Проживание с питомцами необходимо согласовать заранее и оплачивается дополнительно. Пожалуйста, сообщите нам породу, возраст и вес питомца заранее.\n\n8.   Оплата проживания производится переводом или по QR коду (понадобится карта российского банка). Наличный расчет возможен только по предварительн",
+      "nedvigimost_type": "Сдам",
+      "avitoid": 318964047,
+      "cat1_id": 1,
+      "cat2_id": 2,
+      "source": "cian.ru",
+      "phone_protected": 0,
+      "km_do_metro": 1.083,
+      "time_source_created": "2025-06-21 12:27:51",
+      "time_source_updated": "2025-06-21 12:27:53",
+      "is_actual": 11,
+      "metro_only": "Текстильщики",
+      "district_only": "ЮВАО",
+      "id": 666194436,
+      "cat1": "Недвижимость",
+      "cat2": "Квартиры",
+      "images": [
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533152601-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533152688-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533152729-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533152836-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533152922-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153027-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153060-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153158-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153264-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153361-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153458-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153571-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153684-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153782-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153825-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153931-1.jpg"
+        },
+        {
+          "imgurl": "https://images.cdn-cian.ru/images/2533153961-1.jpg"
+        }
+      ],
+      "param_1943": "Сдам",
+      "param_2016": "Посуточно",
+      "param_1945": 1,
+      "param_2019": 1,
+      "param_2515": "25.0",
+      "param_2315": 1,
+      "param_2415": 1,
+      "param_12723": 0,
+      "param_12724": 0,
+      "param_6862": "Нет",
+      "param_6866": 3000,
+      "coords": {
+        "lat": "55.71659",
+        "lng": "37.727005"
+      },
+      "person_type_id": 2,
+      "nedvigimost_type_id": 2,
+      "source_id": 4,
+      "contactname": "",
+      "region": "Москва",
+      "city1": "Москва",
+      "phone_operator": "не определен",
+      "phone_region": "не определен",
+      "params": {
+        "Тип объявления": "Сдам",
+        "Срок аренды": "Посуточно",
+        "Количество комнат": 1,
+        "Площадь": "25.0",
+        "Этаж": 1,
+        "Этажей в доме": 1,
+        "Площадь кухни": 0,
+        "Жилая площадь": 0,
+        "Комиссия": "Нет",
+        "Залог": 3000
+      },
+      "count_ads_same_phone": 114011
+    }
+  ],
+  "status": "ok"
+}
