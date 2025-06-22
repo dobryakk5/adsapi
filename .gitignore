@@ -1,0 +1,6 @@
+/.aenv
+.env*
+*/__pycache__
+/logs
+/.vscode
+*.json
