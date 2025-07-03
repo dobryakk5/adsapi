@@ -12,10 +12,11 @@ params = {
     "user": USER,
     "token": TOKEN,
     "city": "Москва",
-    "metro": "Текстильщики",
+    "source": 4,
     "limit": 10,
     "format": "json",
-    "nedvigimost_type": 1
+    "nedvigimost_type": 1,
+    "person_type": 3
 }
 
 # Perform the request

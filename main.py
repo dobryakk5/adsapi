@@ -4,7 +4,7 @@ import requests
 import psycopg2
 from psycopg2.extras import Json
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Загрузка конфигурации из .env
 load_dotenv()
@@ -18,18 +18,39 @@ def fetch_ads(
     metro: str = None,
     rooms_count: int = None,
     source: str = None,
+    person_type: int = 3,
     created_from: str = None,
     created_to: str = None,
     updated_from: str = None,
     updated_to: str = None,
     limit: int = 10
 ):
+    # Устанавливаем фильтр по дате создания: вчера и сегодня, если не заданы явно
+    if not created_from and not created_to:
+        today = datetime.now().date()
+        yesterday = today - timedelta(days=1)
+        created_from = yesterday.strftime('%Y-%m-%d')
+        #created_from = today.strftime('%Y-%m-%d')
+        # устанавливаем до конца сегодняшнего дня
+        created_to = today.strftime('%Y-%m-%d')
+
     params = {
         "user": ADS_API_USER,
         "token": ADS_API_TOKEN,
         "format": "json",
         "limit": limit,
+        # Фильтры: тип объявления (person_type), продажа квартир
+        "person_type": person_type,
+        "category_id": 2,            # Квартиры
+        "nedvigimost_type": 1,        # Продам
     }
+    # Фильтры по датам создания
+    if created_from:
+        params["date1"] = created_from
+    if created_to:
+        params["date2"] = created_to
+
+    # Прочие фильтры
     if city:
         params["city"] = city
     if metro:
@@ -38,15 +59,19 @@ def fetch_ads(
         params["param[2313]"] = rooms_count
     if source:
         params["source"] = source
-    if created_from:
-        params["date1"] = created_from
-    if created_to:
-        params["date2"] = created_to
 
+    # Запрос
+    print(f"Requesting URL: {ADS_API_URL} with params: {params}")
     response = requests.get(ADS_API_URL, params=params)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        print(f"Error requesting {response.url}: {response.status_code} - {response.text}")
+        raise
+
     ads = response.json().get("data", [])
 
+    # Фильтрация по дате обновления, если задано
     def in_range(dt_str, start, end):
         if not dt_str:
             return False
@@ -64,6 +89,7 @@ def fetch_ads(
         ]
 
     return ads
+
 
 def insert_ad(cursor, ad):
     coords = ad.get("coords") or {}
@@ -145,13 +171,8 @@ def insert_ad(cursor, ad):
 def main():
     ads = fetch_ads(
         city="Москва",
-        metro="Лубянка",
-        #rooms_count=1,
-        #source="1,4",            # avito.ru + cian.ru
-        #created_from="2025-06-01",
-        #created_to="2025-06-20",
-        #updated_from="2025-06-10",
-        #updated_to="2025-06-20",
+        source="1,2",
+        person_type=3,
         limit=50
     )
     print(f"Fetched {len(ads)} ads from API.")
