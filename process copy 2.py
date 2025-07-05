@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Синонимы типов улиц
+# Синонимы типов улиц: ключи — возможные входы, значения — канонические коды
 TYPE_SYNONYMS = {
     'просп.': 'пр-кт', 'пр-кт': 'пр-кт',
     'бульвар': 'б-р',   'проезд': 'пр-д',
@@ -24,6 +24,7 @@ TYPE_SYNONYMS = {
     'ш.': 'ш',          'ш': 'ш',
 }
 
+# Специальный parentobjid для Зеленограда
 ZELENOGRAD_PARENTOBJID = 1405230
 
 def to_int(value):
@@ -44,37 +45,17 @@ def load_street_types(cur):
     cur.execute("SELECT DISTINCT typename FROM public.fias_objects WHERE typename IS NOT NULL;")
     return {row[0].rstrip('.').lower() for row in cur.fetchall()}
 
-def split_street(full: str, street_types: set[str]) -> tuple[str | None, str]:
-    words = full.strip().split()
-    if len(words) >= 2:
-        def normalize(tok):
-            raw = tok.rstrip('.')
-            return TYPE_SYNONYMS.get(tok) or TYPE_SYNONYMS.get(raw)
-
-        first = normalize(words[0])
-        if first:
-            return first, ' '.join(words[1:])
-        last = normalize(words[-1])
-        if last:
-            return last, ' '.join(words[:-1])
-
-        first_raw = words[0].rstrip('.')
-        last_raw = words[-1].rstrip('.')
-        if first_raw.lower() in street_types:
-            return first_raw, ' '.join(words[1:])
-        if last_raw.lower() in street_types:
-            return last_raw, ' '.join(words[:-1])
-    return None, full.strip()
-
 def find_street_objectids(cur, name, typename):
     if typename:
         cur.execute(
-            "SELECT objectid FROM public.fias_objects WHERE norm_name=LOWER(%s) AND typename=%s;",
+            "SELECT objectid FROM public.fias_objects "
+            "WHERE norm_name=LOWER(%s) AND typename=%s;",
             (name, typename)
         )
     else:
         cur.execute(
-            "SELECT objectid FROM public.fias_objects WHERE norm_name=LOWER(%s);",
+            "SELECT objectid FROM public.fias_objects "
+            "WHERE norm_name=LOWER(%s);",
             (name,)
         )
     return [row[0] for row in cur.fetchall()]
@@ -83,8 +64,8 @@ def get_houses_by_parents(cur, parent_ids):
     cur.execute(
         """
         SELECT objectid, housenum, addnum1, addtype1, addnum2, addtype2
-        FROM public.fias_houses
-        WHERE parentobjid = ANY(%s);
+          FROM public.fias_houses
+         WHERE parentobjid = ANY(%s);
         """,
         (parent_ids,)
     )
@@ -99,62 +80,45 @@ def get_houses_by_parents(cur, parent_ids):
         })
     return houses
 
-def parse_and_find_house(cur, street_id, hs, addmap):
-    logger.debug(f"Parsing house string: '{hs}' on street_id={street_id}")
-    all_houses = get_houses_by_parents(cur, street_id)
-
-    # Найдём префикс до первой буквы
-    m_prefix = re.match(r"^(\d+[А-Яа-я]?)", hs)
+def parse_and_find_house(cur, street_ids, hs, addmap):
+    m_prefix = re.match(r"^(.+?)(?=[А-Яа-яA-Za-z])", hs)
     prefix = m_prefix.group(1) if m_prefix else hs
-    logger.debug(f"  Parsed prefix: {prefix}")
-    candidates = all_houses.get(prefix, [])
+    all_candidates = {}
+    for sid in street_ids:
+        by_street = get_houses_by_parents(cur, [sid])
+        all_candidates.update(by_street)
+    candidates = all_candidates.get(prefix, [])
     if not candidates:
-        logger.debug(f"  No candidates for prefix '{prefix}'")
+        logger.debug(f"No candidates for prefix '{prefix}' from house '{hs}'")
         return None
 
-    # Если ничего больше нет (только номер), вернём первый найденный
-    rest = hs[len(prefix):]
-    if not rest:
-        logger.debug(f"  Matched house by prefix only: {prefix}")
+    if not re.search(r"[А-Яа-яA-Za-z]", hs):
+        logger.debug(f"Matched house by prefix only: {prefix} -> {candidates[0]['objectid']}")
         return candidates[0]['objectid']
 
-    logger.debug(f"  Remaining part after prefix: '{rest}'")
+    m_full = re.match(
+        r"^(.+?)([А-Яа-яA-Za-z]+)(\d+)(?:([А-Яа-яA-Za-z]+)(\d+))?$", hs
+    )
+    if m_full:
+        add1 = m_full.group(2).lower()
+        suf1 = m_full.group(3)
+        add2 = (m_full.group(4) or '').lower()
+        suf2 = m_full.group(5) or ''
 
-    def extract_addtype_num(text):
-        for name in sorted(addmap.keys(), key=len, reverse=True):
-            if text.lower().startswith(name):
-                num = text[len(name):]
-                if num.isdigit():
-                    return addmap[name], num
-        return None, None
+        add1_id = addmap.get(add1)
+        add2_id = addmap.get(add2) if add2 else None
 
-    # Разбор add1
-    addtype1, addnum1 = extract_addtype_num(rest)
-    logger.debug(f"  Parsed add1: type_id={addtype1}, num={addnum1}")
-    if addtype1 is None:
-        logger.debug(f"  Failed to extract valid addtype1 from '{rest}'")
-        return candidates[0]['objectid']
+        for c in candidates:
+            ok1 = add1_id and c['addtype1'] == add1_id and (c['addnum1'] or '') == suf1
+            ok2 = not add2 or (add2_id and c['addtype2'] == add2_id and (c['addnum2'] or '') == suf2)
+            if ok1 and ok2:
+                logger.debug(f"Matched house by full pattern: {hs} -> {c['objectid']}")
+                return c['objectid']
 
-    # Отрезаем обработанную часть и разбираем возможный add2
-    rest2 = rest[len(next(k for k in addmap if rest.lower().startswith(k))) + len(addnum1):]
-    addtype2, addnum2 = extract_addtype_num(rest2) if rest2 else (None, None)
-    logger.debug(f"  Parsed add2: type_id={addtype2}, num={addnum2}")
-
-    # Поиск совпадения среди кандидатов
-    for c in candidates:
-        if (
-            c['addtype1'] == addtype1 and (c['addnum1'] or '') == addnum1 and
-            (not addtype2 or (
-                c['addtype2'] == addtype2 and (c['addnum2'] or '') == addnum2
-            ))
-        ):
-            logger.debug(f"  Found matching house_id={c['objectid']} with full match")
-            return c['objectid']
-
-    logger.debug(f"  No exact match found, fallback to first for prefix '{prefix}'")
+    logger.debug(f"Fallback: matched house by prefix only: {prefix} -> {candidates[0]['objectid']}")
     return candidates[0]['objectid']
 
-
+# ... (main and rest of the code remain unchanged) ...
 
 
 
@@ -214,7 +178,7 @@ def main():
         SELECT id, address, city, source, url, person_type_id, price,
                time_source_created, time_source_updated, params
           FROM ads
-         WHERE processed IS true
+         WHERE processed IS FALSE
          LIMIT 2;
     """
     )

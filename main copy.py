@@ -25,11 +25,13 @@ def fetch_ads(
     updated_to: str = None,
     limit: int = 10
 ):
-    # Если даты не заданы — берём вчера и сегодня
+    # Устанавливаем фильтр по дате создания: вчера и сегодня, если не заданы явно
     if not created_from and not created_to:
         today = datetime.now().date()
         yesterday = today - timedelta(days=1)
         created_from = yesterday.strftime('%Y-%m-%d')
+        #created_from = today.strftime('%Y-%m-%d')
+        # устанавливаем до конца сегодняшнего дня
         created_to = today.strftime('%Y-%m-%d')
 
     params = {
@@ -37,14 +39,18 @@ def fetch_ads(
         "token": ADS_API_TOKEN,
         "format": "json",
         "limit": limit,
+        # Фильтры: тип объявления (person_type), продажа квартир
         "person_type": person_type,
-        "category_id": 2,      # Квартиры
-        "nedvigimost_type": 1, # Продам
+        "category_id": 2,            # Квартиры
+        "nedvigimost_type": 1,        # Продам
     }
+    # Фильтры по датам создания
     if created_from:
         params["date1"] = created_from
     if created_to:
         params["date2"] = created_to
+
+    # Прочие фильтры
     if city:
         params["city"] = city
     if metro:
@@ -54,12 +60,18 @@ def fetch_ads(
     if source:
         params["source"] = source
 
+    # Запрос
     print(f"Requesting URL: {ADS_API_URL} with params: {params}")
     response = requests.get(ADS_API_URL, params=params)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        print(f"Error requesting {response.url}: {response.status_code} - {response.text}")
+        raise
+
     ads = response.json().get("data", [])
 
-    # Фильтрация по дате обновления
+    # Фильтрация по дате обновления, если задано
     def in_range(dt_str, start, end):
         if not dt_str:
             return False
@@ -80,23 +92,17 @@ def fetch_ads(
 
 
 def insert_ad(cursor, ad):
-    # Координаты
     coords = ad.get("coords") or {}
     try:
         lat = float(coords.get("lat")) if coords.get("lat") else None
         lng = float(coords.get("lng")) if coords.get("lng") else None
-    except ValueError:
+    except:
         lat = lng = None
 
-    # До метро
     try:
         km = float(ad.get("km_do_metro")) if ad.get("km_do_metro") else None
-    except ValueError:
+    except:
         km = None
-
-    # Извлекаем тип дома из params или из поля param_2009
-    params_dict = ad.get("params", {})
-    house_type = params_dict.get("2009") or ad.get("param_2009")
 
     cursor.execute("""
         INSERT INTO ads (
@@ -106,8 +112,7 @@ def insert_ad(cursor, ad):
             metro, metro_only, district_only, address, description,
             nedvigimost_type, nedvigimost_type_id, avitoid, cat1_id, cat2_id,
             cat1, cat2, source, source_id, is_actual, km_do_metro, coords_lat, coords_lng,
-            images, params, params2, param_raw, count_ads_same_phone,
-            house_type
+            images, params, params2, param_raw, count_ads_same_phone
         ) VALUES (
             %(id)s, %(url)s, %(title)s, %(price)s, %(price_metric)s, %(time)s, %(time_source_created)s,
             %(time_source_updated)s, %(phone)s, %(phone_protected)s, %(phone_operator)s, %(phone_region)s,
@@ -115,54 +120,52 @@ def insert_ad(cursor, ad):
             %(metro)s, %(metro_only)s, %(district_only)s, %(address)s, %(description)s,
             %(nedvigimost_type)s, %(nedvigimost_type_id)s, %(avitoid)s, %(cat1_id)s, %(cat2_id)s,
             %(cat1)s, %(cat2)s, %(source)s, %(source_id)s, %(is_actual)s, %(km_do_metro)s, %(coords_lat)s, %(coords_lng)s,
-            %(images)s, %(params)s, %(params2)s, %(param_raw)s, %(count_ads_same_phone)s,
-            %(house_type)s
+            %(images)s, %(params)s, %(params2)s, %(param_raw)s, %(count_ads_same_phone)s
         )
         ON CONFLICT (id) DO NOTHING;
     """, {
-        "id":                   ad.get("id"),
-        "url":                  ad.get("url"),
-        "title":                ad.get("title"),
-        "price":                ad.get("price"),
-        "price_metric":         ad.get("price_metric"),
-        "time":                 ad.get("time"),
-        "time_source_created":  ad.get("time_source_created"),
-        "time_source_updated":  ad.get("time_source_updated"),
-        "phone":                ad.get("phone"),
-        "phone_protected":      bool(ad.get("phone_protected")) if ad.get("phone_protected") is not None else None,
-        "phone_operator":       ad.get("phone_operator"),
-        "phone_region":         ad.get("phone_region"),
-        "person":               ad.get("person"),
-        "person_type":          ad.get("person_type"),
-        "person_type_id":       ad.get("person_type_id"),
-        "contactname":          ad.get("contactname"),
-        "city":                 ad.get("city"),
-        "city1":                ad.get("city1"),
-        "region":               ad.get("region"),
-        "metro":                ad.get("metro"),
-        "metro_only":           ad.get("metro_only"),
-        "district_only":        ad.get("district_only"),
-        "address":              ad.get("address"),
-        "description":          ad.get("description"),
-        "nedvigimost_type":     ad.get("nedvigimost_type"),
-        "nedvigimost_type_id":  ad.get("nedvigimost_type_id"),
-        "avitoid":              ad.get("avitoid"),
-        "cat1_id":              ad.get("cat1_id"),
-        "cat2_id":              ad.get("cat2_id"),
-        "cat1":                 ad.get("cat1"),
-        "cat2":                 ad.get("cat2"),
-        "source":               ad.get("source"),
-        "source_id":            ad.get("source_id"),
-        "is_actual":            ad.get("is_actual"),
-        "km_do_metro":          km,
-        "coords_lat":           lat,
-        "coords_lng":           lng,
-        "images":               Json(ad.get("images", [])),
-        "params":               Json(ad.get("params", {})),
-        "params2":              Json(ad.get("params2", {})),
-        "param_raw":            Json({k: v for k, v in ad.items() if k.startswith("param[")}),
-        "count_ads_same_phone": ad.get("count_ads_same_phone"),
-        "house_type":           house_type,
+        "id": ad.get("id"),
+        "url": ad.get("url"),
+        "title": ad.get("title"),
+        "price": ad.get("price"),
+        "price_metric": ad.get("price_metric"),
+        "time": ad.get("time"),
+        "time_source_created": ad.get("time_source_created"),
+        "time_source_updated": ad.get("time_source_updated"),
+        "phone": ad.get("phone"),
+        "phone_protected": bool(ad.get("phone_protected")) if ad.get("phone_protected") is not None else None,
+        "phone_operator": ad.get("phone_operator"),
+        "phone_region": ad.get("phone_region"),
+        "person": ad.get("person"),
+        "person_type": ad.get("person_type"),
+        "person_type_id": ad.get("person_type_id"),
+        "contactname": ad.get("contactname"),
+        "city": ad.get("city"),
+        "city1": ad.get("city1"),
+        "region": ad.get("region"),
+        "metro": ad.get("metro"),
+        "metro_only": ad.get("metro_only"),
+        "district_only": ad.get("district_only"),
+        "address": ad.get("address"),
+        "description": ad.get("description"),
+        "nedvigimost_type": ad.get("nedvigimost_type"),
+        "nedvigimost_type_id": ad.get("nedvigimost_type_id"),
+        "avitoid": ad.get("avitoid"),
+        "cat1_id": ad.get("cat1_id"),
+        "cat2_id": ad.get("cat2_id"),
+        "cat1": ad.get("cat1"),
+        "cat2": ad.get("cat2"),
+        "source": ad.get("source"),
+        "source_id": ad.get("source_id"),
+        "is_actual": ad.get("is_actual"),
+        "km_do_metro": km,
+        "coords_lat": lat,
+        "coords_lng": lng,
+        "images": Json(ad.get("images", [])),
+        "params": Json(ad.get("params", {})),
+        "params2": Json(ad.get("params2", {})),
+        "param_raw": Json({k: v for k, v in ad.items() if k.startswith("param[")}),
+        "count_ads_same_phone": ad.get("count_ads_same_phone")
     })
 
 def main():

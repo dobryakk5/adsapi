@@ -9,11 +9,10 @@ from psycopg2.extras import execute_values
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
-# Загружаем переменные окружения
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Синонимы типов улиц
+# Синонимы типов улиц: ключи — возможные входы, значения — канонические коды
 TYPE_SYNONYMS = {
     'просп.': 'пр-кт', 'пр-кт': 'пр-кт',
     'бульвар': 'б-р',   'проезд': 'пр-д',
@@ -24,12 +23,13 @@ TYPE_SYNONYMS = {
     'ш.': 'ш',          'ш': 'ш',
 }
 
+# Специальный parentobjid для Зеленограда
 ZELENOGRAD_PARENTOBJID = 1405230
 
 def to_int(value):
     try:
         return int(value)
-    except (TypeError, ValueError):
+    except:
         return None
 
 def load_lookup_map(cur):
@@ -44,50 +44,64 @@ def load_street_types(cur):
     cur.execute("SELECT DISTINCT typename FROM public.fias_objects WHERE typename IS NOT NULL;")
     return {row[0].rstrip('.').lower() for row in cur.fetchall()}
 
-def split_street(full: str, street_types: set[str]) -> tuple[str | None, str]:
+# Парсинг улицы: проверяем первый и последний токен
+# Учитываем ключи как со точкой, так и без
+
+def split_street(full, street_types):
     words = full.strip().split()
     if len(words) >= 2:
-        def normalize(tok):
-            raw = tok.rstrip('.')
-            return TYPE_SYNONYMS.get(tok) or TYPE_SYNONYMS.get(raw)
+        # Функция для получения возможного значения из TYPE_SYNONYMS
+        def lookup_type(tok):
+            raw = tok.lower()
+            stripped = raw.rstrip('.')
+            if raw in TYPE_SYNONYMS:
+                return TYPE_SYNONYMS[raw]
+            if stripped in TYPE_SYNONYMS:
+                return TYPE_SYNONYMS[stripped]
+            return None
 
-        first = normalize(words[0])
-        if first:
-            return first, ' '.join(words[1:])
-        last = normalize(words[-1])
-        if last:
-            return last, ' '.join(words[:-1])
-
-        first_raw = words[0].rstrip('.')
-        last_raw = words[-1].rstrip('.')
-        if first_raw.lower() in street_types:
-            return first_raw, ' '.join(words[1:])
-        if last_raw.lower() in street_types:
-            return last_raw, ' '.join(words[:-1])
+        # Проверяем первый токен
+        first = words[0]
+        t = lookup_type(first)
+        if t:
+            return t, ' '.join(words[1:])
+        # Проверяем последний токен
+        last = words[-1]
+        t = lookup_type(last)
+        if t:
+            return t, ' '.join(words[:-1])
+        # Динамические street_types (без точки)
+        first_stripped = words[0].rstrip('.').lower()
+        if first_stripped in street_types:
+            return first_stripped, ' '.join(words[1:])
+        last_stripped = words[-1].rstrip('.').lower()
+        if last_stripped in street_types:
+            return last_stripped, ' '.join(words[:-1])
+    # Не удалось определить тип
     return None, full.strip()
 
-def find_street_objectids(cur, name, typename):
+def find_street_objectid(cur, name, typename):
     if typename:
         cur.execute(
-            "SELECT objectid FROM public.fias_objects WHERE norm_name=LOWER(%s) AND typename=%s;",
+            "SELECT objectid FROM public.fias_objects "
+            "WHERE norm_name=LOWER(%s) AND typename=%s LIMIT 1;",
             (name, typename)
         )
     else:
         cur.execute(
-            "SELECT objectid FROM public.fias_objects WHERE norm_name=LOWER(%s);",
+            "SELECT objectid FROM public.fias_objects "
+            "WHERE norm_name=LOWER(%s) LIMIT 1;",
             (name,)
         )
-    return [row[0] for row in cur.fetchall()]
+    row = cur.fetchone()
+    return row[0] if row else None
 
-def get_houses_by_parents(cur, parent_ids):
-    cur.execute(
-        """
+def get_houses_by_parent(cur, parentobjid):
+    cur.execute("""
         SELECT objectid, housenum, addnum1, addtype1, addnum2, addtype2
-        FROM public.fias_houses
-        WHERE parentobjid = ANY(%s);
-        """,
-        (parent_ids,)
-    )
+          FROM public.fias_houses
+         WHERE parentobjid = %s;
+    """, (parentobjid,))
     houses = {}
     for objid, housenum, addnum1, addtype1, addnum2, addtype2 in cur.fetchall():
         houses.setdefault(housenum, []).append({
@@ -99,71 +113,12 @@ def get_houses_by_parents(cur, parent_ids):
         })
     return houses
 
-def parse_and_find_house(cur, street_id, hs, addmap):
-    logger.debug(f"Parsing house string: '{hs}' on street_id={street_id}")
-    all_houses = get_houses_by_parents(cur, street_id)
-
-    # Найдём префикс до первой буквы
-    m_prefix = re.match(r"^(\d+[А-Яа-я]?)", hs)
-    prefix = m_prefix.group(1) if m_prefix else hs
-    logger.debug(f"  Parsed prefix: {prefix}")
-    candidates = all_houses.get(prefix, [])
-    if not candidates:
-        logger.debug(f"  No candidates for prefix '{prefix}'")
-        return None
-
-    # Если ничего больше нет (только номер), вернём первый найденный
-    rest = hs[len(prefix):]
-    if not rest:
-        logger.debug(f"  Matched house by prefix only: {prefix}")
-        return candidates[0]['objectid']
-
-    logger.debug(f"  Remaining part after prefix: '{rest}'")
-
-    def extract_addtype_num(text):
-        for name in sorted(addmap.keys(), key=len, reverse=True):
-            if text.lower().startswith(name):
-                num = text[len(name):]
-                if num.isdigit():
-                    return addmap[name], num
-        return None, None
-
-    # Разбор add1
-    addtype1, addnum1 = extract_addtype_num(rest)
-    logger.debug(f"  Parsed add1: type_id={addtype1}, num={addnum1}")
-    if addtype1 is None:
-        logger.debug(f"  Failed to extract valid addtype1 from '{rest}'")
-        return candidates[0]['objectid']
-
-    # Отрезаем обработанную часть и разбираем возможный add2
-    rest2 = rest[len(next(k for k in addmap if rest.lower().startswith(k))) + len(addnum1):]
-    addtype2, addnum2 = extract_addtype_num(rest2) if rest2 else (None, None)
-    logger.debug(f"  Parsed add2: type_id={addtype2}, num={addnum2}")
-
-    # Поиск совпадения среди кандидатов
-    for c in candidates:
-        if (
-            c['addtype1'] == addtype1 and (c['addnum1'] or '') == addnum1 and
-            (not addtype2 or (
-                c['addtype2'] == addtype2 and (c['addnum2'] or '') == addnum2
-            ))
-        ):
-            logger.debug(f"  Found matching house_id={c['objectid']} with full match")
-            return c['objectid']
-
-    logger.debug(f"  No exact match found, fallback to first for prefix '{prefix}'")
-    return candidates[0]['objectid']
-
-
-
-
-
-
+# Главная функция
 def main():
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
 
-    # Создание таблиц flats и flats_history
+    # Создание таблиц
     cur.execute("""
     CREATE TABLE IF NOT EXISTS flats (
         house_id INT NOT NULL,
@@ -205,23 +160,48 @@ def main():
     conn.commit()
 
     # Загрузка справочников
-    addtype_map   = load_addtype_map(cur)
-    lookup_map    = load_lookup_map(cur)
-    street_types  = load_street_types(cur)
+    addtype_map = load_addtype_map(cur)
+    lookup_map = load_lookup_map(cur)
+    street_types = load_street_types(cur)
 
-    # Обработка объявлений
+    # Сборка шаблона для разбора дома
+    addtypes = sorted(addtype_map.keys(), key=len, reverse=True)
+    addtypes_pattern = "|".join(re.escape(a) for a in addtypes)
+    HOUSE_PATTERN = re.compile(rf"^(.+?)({addtypes_pattern})(\d*)$", re.IGNORECASE)
+
+    def parse_and_find_house(cur, street_id, hs, addmap):
+        m = HOUSE_PATTERN.match(hs)
+        if m:
+            house_name = m.group(1)
+            add_type_str = m.group(2).lower()
+            suffix_num = m.group(3)
+            addtype_id = addmap.get(add_type_str)
+            if addtype_id is None:
+                logger.debug(f"Unknown addtype '{add_type_str}' in '{hs}'")
+                return None
+            candidates = get_houses_by_parent(cur, street_id).get(house_name, [])
+            for c in candidates:
+                if c['addtype1'] == addtype_id and (c['addnum1'] or '') == suffix_num:
+                    return c['objectid']
+            return None
+        simple = get_houses_by_parent(cur, street_id).get(hs)
+        if simple:
+            return simple[0]['objectid']
+        logger.debug(f"House '{hs}' did not match HOUSE_PATTERN")
+        return None
+
+    flats_rows, history_rows, processed_ids = [], [], []
+
+    # Выборка объявлений
     cur.execute("""
         SELECT id, address, city, source, url, person_type_id, price,
                time_source_created, time_source_updated, params
           FROM ads
-         WHERE processed IS true
-         LIMIT 2;
-    """
-    )
+         WHERE processed IS FALSE
+         LIMIT 10;
+    """)
     rows = cur.fetchall()
     logger.info(f"Total rows to process: {len(rows)}")
-
-    flats_rows, history_rows, processed_ids = [], [], []
 
     for idx, (ad_id, address, city, src, url, ptype, price, tcr, tup, params) in enumerate(rows, start=1):
         parts = [p.strip() for p in address.split(',') if p.strip()]
@@ -229,20 +209,23 @@ def main():
             logger.debug(f"Row {idx}: empty address")
             continue
 
+        # Спецобработка для Зеленограда
         if 'зеленоград' in city.lower():
             street_id = ZELENOGRAD_PARENTOBJID
-            match_num = re.search(r"(\d+)", parts[0])
-            house_str = match_num.group(1) if match_num else parts[0]
-            street_name, street_type = None, None
+            raw = parts[0]
+            m = re.search(r"(\d+)", raw)
+            house_str = m.group(1) if m else raw
+            street_name = None
+            street_type = None
         else:
             street_type, street_name = split_street(parts[0], street_types)
-            street_ids = find_street_objectids(cur, street_name, street_type)
-            if not street_ids:
+            street_id = find_street_objectid(cur, street_name, street_type)
+            if not street_id:
                 logger.debug(f"Row {idx}: street '{street_name}' not found")
                 continue
-            house_str = parts[1] if len(parts) > 1 else ''
+            house_str = parts[1] if len(parts) > 1 else ""
 
-        house_id = parse_and_find_house(cur, street_ids, house_str, addtype_map)
+        house_id = parse_and_find_house(cur, street_id, house_str, addtype_map)
         if not house_id:
             logger.debug(f"Row {idx}: house '{house_str}' not found on parentobjid {street_id}")
             continue
@@ -254,7 +237,7 @@ def main():
             continue
 
         raw_house_type = (params.get('Тип дома') or '').lower().strip()
-        house_type_id  = lookup_map.get(('house_type', raw_house_type))
+        house_type_id = lookup_map.get(('house_type', raw_house_type))
         if raw_house_type and house_type_id is None:
             logger.warning(f"Row {idx}: house_type '{raw_house_type}' missing in lookup")
 
@@ -277,22 +260,38 @@ def main():
         ))
         processed_ids.append(ad_id)
 
+    logger.info(f"Prepared: {len(flats_rows)} flats, {len(history_rows)} history rows")
+
     if flats_rows:
         execute_values(cur, """
             INSERT INTO flats (
-                house_id, floor, rooms, street, street_type, house,
-                town, total_floors, area, living_area, kitchen_area, house_type_id
-            ) VALUES %s ON CONFLICT DO NOTHING;
+                house_id, floor, rooms,
+                street, street_type, house,
+                town, total_floors,
+                area, living_area, kitchen_area,
+                house_type_id
+            ) VALUES %s
+            ON CONFLICT DO NOTHING;
         """, flats_rows)
+        logger.info(f"Inserted into flats: {len(flats_rows)}")
+
     if history_rows:
         execute_values(cur, """
             INSERT INTO flats_history (
-                house_id, floor, rooms, source, object_type, ad_type,
-                url, person_type_id, price, time_source_created, time_source_updated
+                house_id, floor, rooms,
+                source, object_type, ad_type,
+                url, person_type_id, price,
+                time_source_created, time_source_updated
             ) VALUES %s;
         """, history_rows)
+        logger.info(f"Inserted into flats_history: {len(history_rows)}")
+
     if processed_ids:
-        cur.execute("UPDATE ads SET processed = TRUE WHERE id = ANY(%s);", (processed_ids,))
+        cur.execute(
+            "UPDATE ads SET processed = TRUE WHERE id = ANY(%s);",
+            (processed_ids,)
+        )
+        logger.info(f"Updated processed flag for {len(processed_ids)} ads")
 
     conn.commit()
     cur.close()
