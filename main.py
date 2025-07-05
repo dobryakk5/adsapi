@@ -171,7 +171,7 @@ def insert_ad(cursor, ad):
 def main():
     ads = fetch_ads(
         city="Москва",
-        source="1,2",
+        source="1,2,3,4",
         person_type=3,
         limit=50
     )
