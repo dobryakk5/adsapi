@@ -99,63 +99,69 @@ def get_houses_by_parents(cur, parent_ids):
         })
     return houses
 
-def parse_and_find_house(cur, street_id, hs, addmap):
-    logger.debug(f"Parsing house string: '{hs}' on street_id={street_id}")
+def parse_and_find_house(cur, street_id, hs_raw, addmap):
+    hs = hs_raw.strip().lower()
+    logger.debug(f"Parsing house string: '{hs_raw}' (lower: '{hs}') on street_id={street_id}")
+
     all_houses = get_houses_by_parents(cur, street_id)
 
-    # Найдём префикс до первой буквы
-    m_prefix = re.match(r"^(\d+[А-Яа-я]?)", hs)
-    prefix = m_prefix.group(1) if m_prefix else hs
-    logger.debug(f"  Parsed prefix: {prefix}")
-    candidates = all_houses.get(prefix, [])
+    # Поиск позиции первого разделителя из addmap
+    addtype_matches = [
+        (name, hs.find(name)) for name in addmap.keys()
+        if hs.find(name) != -1
+    ]
+    addtype_matches.sort(key=lambda x: x[1])  # Сортируем по позиции в строке
+
+    if addtype_matches:
+        first_addtype, pos = addtype_matches[0]
+        prefix = hs[:pos]
+        rest = hs[pos:]
+    else:
+        prefix = hs
+        rest = ''
+
+    logger.debug(f"  Parsed prefix: '{prefix}', remaining: '{rest}'")
+
+    candidates = all_houses.get(prefix.upper(), [])
     if not candidates:
         logger.debug(f"  No candidates for prefix '{prefix}'")
         return None
 
-    # Если ничего больше нет (только номер), вернём первый найденный
-    rest = hs[len(prefix):]
+    # Если нет суффиксов — просто возвращаем по префиксу
     if not rest:
         logger.debug(f"  Matched house by prefix only: {prefix}")
         return candidates[0]['objectid']
 
-    logger.debug(f"  Remaining part after prefix: '{rest}'")
-
     def extract_addtype_num(text):
         for name in sorted(addmap.keys(), key=len, reverse=True):
-            if text.lower().startswith(name):
+            if text.startswith(name):
                 num = text[len(name):]
                 if num.isdigit():
-                    return addmap[name], num
-        return None, None
+                    return addmap[name], num, name
+        return None, None, None
 
     # Разбор add1
-    addtype1, addnum1 = extract_addtype_num(rest)
+    addtype1, addnum1, used_add1 = extract_addtype_num(rest)
     logger.debug(f"  Parsed add1: type_id={addtype1}, num={addnum1}")
-    if addtype1 is None:
+    if not addtype1:
         logger.debug(f"  Failed to extract valid addtype1 from '{rest}'")
         return candidates[0]['objectid']
 
-    # Отрезаем обработанную часть и разбираем возможный add2
-    rest2 = rest[len(next(k for k in addmap if rest.lower().startswith(k))) + len(addnum1):]
-    addtype2, addnum2 = extract_addtype_num(rest2) if rest2 else (None, None)
+    # Разбор add2, если есть
+    rest2 = rest[len(used_add1 + addnum1):] if used_add1 and addnum1 else ''
+    addtype2, addnum2, _ = extract_addtype_num(rest2) if rest2 else (None, None, None)
     logger.debug(f"  Parsed add2: type_id={addtype2}, num={addnum2}")
 
-    # Поиск совпадения среди кандидатов
+    # Ищем полное совпадение
     for c in candidates:
-        if (
-            c['addtype1'] == addtype1 and (c['addnum1'] or '') == addnum1 and
-            (not addtype2 or (
-                c['addtype2'] == addtype2 and (c['addnum2'] or '') == addnum2
-            ))
-        ):
+        ok1 = c['addtype1'] == addtype1 and (c['addnum1'] or '') == addnum1
+        ok2 = not addtype2 or (c['addtype2'] == addtype2 and (c['addnum2'] or '') == addnum2)
+        if ok1 and ok2:
             logger.debug(f"  Found matching house_id={c['objectid']} with full match")
             return c['objectid']
 
     logger.debug(f"  No exact match found, fallback to first for prefix '{prefix}'")
     return candidates[0]['objectid']
-
-
-
 
 
 
@@ -214,7 +220,7 @@ def main():
         SELECT id, address, city, source, url, person_type_id, price,
                time_source_created, time_source_updated, params
           FROM ads
-         WHERE processed IS true
+         WHERE processed IS false
          LIMIT 2;
     """
     )
