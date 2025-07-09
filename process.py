@@ -24,13 +24,11 @@ TYPE_SYNONYMS = {
 }
 ZELENOGRAD_PARENTOBJID = 1405230
 
-
 def to_int(v):
     try:
         return int(v)
     except:
         return None
-
 
 def get_built_year(params2):
     try:
@@ -38,26 +36,21 @@ def get_built_year(params2):
     except:
         return None
 
-
 def load_lookup_map(cur):
     cur.execute("SELECT id, category, name FROM lookup_types;")
     return {(cat, name.lower()): id for id, cat, name in cur.fetchall()}
-
 
 def load_addtype_map(cur):
     cur.execute("SELECT name, id FROM lookup_types WHERE category='addtype';")
     return {name.lower(): id for name, id in cur.fetchall()}
 
-
 def load_street_types(cur):
     cur.execute("SELECT DISTINCT typename FROM public.fias_objects WHERE typename IS NOT NULL;")
     return {r[0].rstrip('.').lower() for r in cur.fetchall()}
 
-
 def load_ao_map(cur):
     cur.execute("SELECT id, admin_okrug FROM public.districts;")
     return {okrug.lower(): id for id, okrug in cur.fetchall()}
-
 
 def split_street(full, street_types):
     words = full.strip().split()
@@ -67,20 +60,16 @@ def split_street(full, street_types):
             stripped = raw.rstrip('.')
             return TYPE_SYNONYMS.get(raw) or TYPE_SYNONYMS.get(stripped)
 
-        # Проверяем первый и последний токен на тип улицы
         for tok in (words[0], words[-1]):
             t = lookup_type(tok)
             if t:
                 parts = words[1:] if tok == words[0] else words[:-1]
                 return t, ' '.join(parts)
-        # Если не нашли через синонимы, пробуем прямое соответствие
         for tok, rest in ((words[0], words[1:]), (words[-1], words[:-1])):
             stripped = tok.rstrip('.').lower()
             if stripped in street_types:
                 return stripped, ' '.join(rest)
-    # Не удалось выделить тип улицы
     return None, full.strip()
-
 
 def find_street_objectids(cur, name, typename):
     name_norm = name.lower().replace('ё', 'е')
@@ -90,12 +79,8 @@ def find_street_objectids(cur, name, typename):
     else:
         sql = "SELECT objectid FROM public.fias_objects WHERE norm_name LIKE LOWER(%s) || '%%';"
         params = (name_norm,)
-
     cur.execute(sql, params)
     return [r[0] for r in cur.fetchall()]
-
-
-
 
 def get_houses_by_parents(cur, parentobjids):
     cur.execute(
@@ -113,14 +98,12 @@ def get_houses_by_parents(cur, parentobjids):
             'addtype1': t1, 'addnum2': str(a2) if a2 else None, 'addtype2': t2})
     return houses
 
-
 def extract_addtype_num(text, addmap):
     for name in sorted(addmap, key=len, reverse=True):
         if text.startswith(name):
             num = text[len(name):]
             if num.isdigit(): return addmap[name], num, name
     return None, None, None
-
 
 def parse_and_find_house(cur, street_ids, hs_raw, addmap):
     hs = hs_raw.strip().lower()
@@ -150,7 +133,6 @@ def parse_and_find_house(cur, street_ids, hs_raw, addmap):
             return c['objectid']
     return candidates[0]['objectid']
 
-
 def main():
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
@@ -164,8 +146,9 @@ def main():
     SELECT id, address, city, district_only,
            source_id, url, person_type_id, price,
            time_source_created, time_source_updated,
-           params, params2, is_actual, avitoid
-      FROM ads WHERE processed IS FALSE LIMIT 20;
+           params, params2, is_actual, avitoid,
+           nedvigimost_type_id, description
+      FROM ads WHERE processed IS FALSE LIMIT 50;
     """
     )
     rows = cur.fetchall()
@@ -175,16 +158,14 @@ def main():
     for idx, (ad_id, address, city, district,
               source_id, url, ptype, price,
               tcr, tup, params, params2,
-              is_act, avitoid) in enumerate(rows, 1):
+              is_act, avitoid, nedvig_type_id, description) in enumerate(rows, 1):
 
-        # Парсинг адреса
         parts = [p.strip() for p in address.split(',') if p.strip()]
         if len(parts) >= 2:
             street_part, house_str = parts[-2], parts[-1]
         else:
             street_part, house_str = parts[0], ''
 
-        # Поиск улицы
         if 'зеленоград' in city.lower():
             street_ids = [ZELENOGRAD_PARENTOBJID]
             m = re.search(r"(\d+)", street_part)
@@ -201,13 +182,11 @@ def main():
                 cur.execute("UPDATE ads SET processed = NULL WHERE id = %s;", (ad_id,))
                 continue
 
-        # Поиск дома
         house_id = parse_and_find_house(cur, street_ids, house_str, addmap)
         if not house_id:
             logger.debug(f"Row {idx}: house '{house_str}' not found on {street_ids}")
             continue
 
-                # Проверка параметров
         floor = to_int(params.get('Этаж')) if params else None
         rooms_raw = params.get('Количество комнат') if params else None
         if rooms_raw and isinstance(rooms_raw, str) and rooms_raw.lower() == 'студия':
@@ -219,7 +198,6 @@ def main():
             cur.execute("UPDATE ads SET processed = NULL WHERE id = %s;", (ad_id,))
             continue
 
-        # Добавляем в буфер для вставки
         flats_rows.append((
             house_id, floor, rooms,
             street_name, street_type, house_str,
@@ -234,40 +212,42 @@ def main():
 
         history_rows.append((
             house_id, floor, rooms,
+            street_name, street_type, house_str,
+            1, to_int(params.get('Этажей в доме')),
+            float(params.get('Площадь') or 0),
+            float(params.get('Жилая площадь') or 0),
+            float(params.get('Площадь кухни') or 0),
+            lookup_map.get(('house_type', (params.get('Тип дома') or '').lower())),
+            ao_map.get((district or '').lower()),
+            get_built_year(params2),
             source_id,
             lookup_map.get(('object_type', (params.get('Вид объекта') or '').lower())),
-            lookup_map.get(('ad_type', (params.get('Тип объявления') or '').lower())),
+            nedvig_type_id,
             url, ptype, price,
-            tcr, tup, avitoid, is_act
+            tcr, tup, avitoid, is_act, description
         ))
         processed_ids.append(ad_id)
 
-    if flats_rows:
-        execute_values(cur,
-            """
-            INSERT INTO flats(
-                house_id, floor, rooms,
-                street, street_type, house,
-                town, total_floors,
-                area, living_area, kitchen_area,
-                house_type_id, ao_id, built
-            ) VALUES %s ON CONFLICT DO NOTHING;
-            """,
-            flats_rows
-        )
     if history_rows:
         execute_values(cur,
             """
-            INSERT INTO flats_history(
-                house_id, floor, rooms,
-                source_id, object_type, ad_type,
-                url, person_type_id, price,
-                time_source_created, time_source_updated,
-                avitoid, is_actual
-            ) VALUES %s ON CONFLICT (avitoid, source_id) DO NOTHING;
+            CREATE TEMP TABLE IF NOT EXISTS tmp_flats_history (
+              house_id integer, floor smallint, rooms smallint,
+              street text, street_type varchar(9), house varchar(8),
+              town smallint, total_floors smallint,
+              area numeric, living_area numeric, kitchen_area numeric,
+              house_type_id smallint, ao_id smallint, built smallint,
+              source_id smallint, object_type smallint, nedvigimost_type_id smallint,
+              url text, person_type_id smallint, price numeric,
+              time_source_created date, time_source_updated timestamp,
+              avitoid bigint, is_actual smallint, description text
+            ) ON COMMIT DROP;
+            INSERT INTO tmp_flats_history VALUES %s;
             """,
             history_rows
         )
+        cur.execute("CALL batch_upsert_flats_and_history();")
+
     if processed_ids:
         cur.execute("UPDATE ads SET processed=TRUE WHERE id=ANY(%s);", (processed_ids,))
 
