@@ -6,30 +6,25 @@ from psycopg2.extras import Json
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
-# Настройки: начало отсчёта и количество дней назад
+# Загрузка настроек из .env
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 ADS_API_USER = os.getenv("ADS_API_USER")
 ADS_API_TOKEN = os.getenv("ADS_API_TOKEN")
 ADS_API_URL = "https://ads-api.ru/main/api"
 
-# Через .env задаются:
-# DATE_START: 'YYYY-MM-DD'
-# DAYS_COUNT: число дней для обработки
-# BATCH_DELAY: задержка между пачками в секундах (по умолчанию 5)
-# MAX_RETRIES: число повторных попыток при HTTPError (429)
-DATE_START = os.getenv("DATE_START", datetime.now().strftime('2025-07-12'))
+# Параметры работы
+DATE_START = os.getenv("DATE_START", datetime.now().strftime('%Y-%m-%d'))
 DAYS_COUNT = int(os.getenv("DAYS_COUNT", "30"))
-BATCH_DELAY = int(os.getenv("BATCH_DELAY", "5"))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "30"))
 RETRY_DELAY = int(os.getenv("RETRY_DELAY", "10"))
 
 
 def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None, limit: int = 1000):
     """
-    Получает одну страницу объявлений за интервал date1..date2.
-    Фильтры: квартиры (category_id=2), продажа (nedvigimost_type=1).
-    При HTTPError 429 ретрай не более MAX_RETRIES раз с задержкой RETRY_DELAY.
+    Получает страницу объявлений за интервал date1..date2.
+    Фильтры: category_id=2, nedvigimost_type=1.
+    При HTTP 429 делает до MAX_RETRIES попыток с задержкой RETRY_DELAY.
     """
     params = {
         "user": ADS_API_USER,
@@ -50,14 +45,14 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
     attempt = 0
     while True:
         try:
-            print(f"Requesting ads from {date1} to {date2}, attempt {attempt+1}")
+            print(f"Requesting ads {date1}–{date2}, attempt {attempt+1}")
             resp = requests.get(ADS_API_URL, params=params)
             resp.raise_for_status()
             return resp.json().get("data", [])
         except requests.exceptions.HTTPError as e:
             if resp.status_code == 429 and attempt < MAX_RETRIES:
                 attempt += 1
-                print(f"429 Too Many Requests, retry in {RETRY_DELAY}s (attempt {attempt}/{MAX_RETRIES})")
+                print(f"429 Too Many Requests, retry {attempt}/{MAX_RETRIES} in {RETRY_DELAY}s")
                 time.sleep(RETRY_DELAY)
                 continue
             else:
@@ -66,21 +61,26 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
 
 def insert_ads_batch(cursor, ads):
     """
-    Вставляет пачку объявлений в БД, исключая ненужные поля.
+    Вставляет пачку объявлений в БД, удаляя лишние поля и нормируя координаты.
     """
     for ad in ads:
-        for field in ["person_type", "nedvigimost_type", "cat1", "cat2", "source"]:
-            ad.pop(field, None)
+        for fld in ["person_type", "nedvigimost_type", "cat1", "cat2", "source"]:
+            ad.pop(fld, None)
+
         coords = ad.get("coords") or {}
         try:
             lat = float(coords.get("lat")) if coords.get("lat") else None
             lng = float(coords.get("lng")) if coords.get("lng") else None
-        except (ValueError, TypeError): lat = lng = None
+        except (ValueError, TypeError):
+            lat = lng = None
+
         try:
             km = float(ad.get("km_do_metro")) if ad.get("km_do_metro") else None
-        except (ValueError, TypeError): km = None
+        except (ValueError, TypeError):
+            km = None
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO ads (
                 id, url, price, "time", time_source_created, time_source_updated,
                 person, person_type_id, city, metro_only, district_only,
@@ -96,78 +96,99 @@ def insert_ads_batch(cursor, ads):
                 %(coords_lat)s, %(coords_lng)s, %(images)s, %(params)s, %(params2)s,
                 %(processed)s, %(debug)s
             ) ON CONFLICT (id) DO NOTHING;
-        """, {
-            "id": ad.get("id"),
-            "url": ad.get("url"),
-            "price": ad.get("price"),
-            "time": ad.get("time"),
-            "time_source_created": ad.get("time_source_created"),
-            "time_source_updated": ad.get("time_source_updated"),
-            "person": ad.get("person"),
-            "person_type_id": ad.get("person_type_id"),
-            "city": ad.get("city"),
-            "metro_only": ad.get("metro_only"),
-            "district_only": ad.get("district_only"),
-            "address": ad.get("address"),
-            "description": ad.get("description"),
-            "nedvigimost_type_id": ad.get("nedvigimost_type_id"),
-            "avitoid": ad.get("avitoid"),
-            "cat1_id": ad.get("cat1_id"),
-            "cat2_id": ad.get("cat2_id"),
-            "source_id": ad.get("source_id"),
-            "is_actual": ad.get("is_actual"),
-            "km_do_metro": km,
-            "coords_lat": lat,
-            "coords_lng": lng,
-            "images": Json(ad.get("images", [])),
-            "params": Json(ad.get("params", {})),
-            "params2": Json(ad.get("params2", {})),
-            "processed": False,
-            "debug": Json({})
-        })
+            """, {
+                "id": ad.get("id"),
+                "url": ad.get("url"),
+                "price": ad.get("price"),
+                "time": ad.get("time"),
+                "time_source_created": ad.get("time_source_created"),
+                "time_source_updated": ad.get("time_source_updated"),
+                "person": ad.get("person"),
+                "person_type_id": ad.get("person_type_id"),
+                "city": ad.get("city"),
+                "metro_only": ad.get("metro_only"),
+                "district_only": ad.get("district_only"),
+                "address": ad.get("address"),
+                "description": ad.get("description"),
+                "nedvigimost_type_id": ad.get("nedvigimost_type_id"),
+                "avitoid": ad.get("avitoid"),
+                "cat1_id": ad.get("cat1_id"),
+                "cat2_id": ad.get("cat2_id"),
+                "source_id": ad.get("source_id"),
+                "is_actual": ad.get("is_actual"),
+                "km_do_metro": km,
+                "coords_lat": lat,
+                "coords_lng": lng,
+                "images": Json(ad.get("images", [])),
+                "params": Json(ad.get("params", {})),
+                "params2": Json(ad.get("params2", {})),
+                "processed": False,
+                "debug": Json({})
+            }
+        )
 
 
 def main():
-    start_date = datetime.strptime(DATE_START, '%Y-%m-%d').date()
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
-    for i in range(DAYS_COUNT):
-        current = start_date - timedelta(days=i)
-        date1 = datetime.combine(current, datetime.min.time()).strftime('%Y-%m-%d 00:00:00')
-        date2 = datetime.combine(current, datetime.max.time()).strftime('%Y-%m-%d 23:59:59')
-        print(f"Processing day: {current}")
+    # 1. Определяем старт с помощью максимальной даты в БД
+    cursor.execute('SELECT MAX("time") FROM ads;')
+    last_time_in_db = cursor.fetchone()[0]
 
-        total_day = 0
-        last_start = date1
-        while True:
-            batch = fetch_ads_batch(
-                date1=last_start,
-                date2=date2,
-                city="Москва",
-                #source="1,2,3,4",
-                limit=1000
-            )
-            if not batch:
+    if last_time_in_db is None:
+        # Если БД пуста — стартуем с 00:00 DATE_START
+        start_date = datetime.strptime(DATE_START, '%Y-%m-%d')
+        last_start = start_date.replace(hour=0, minute=0, second=0)
+    else:
+        # Иначе — сразу после последнего времени
+        last_start = last_time_in_db + timedelta(seconds=1)
+
+    # Проходим DAYS_COUNT дней, начиная с даты last_start
+    for offset in range(DAYS_COUNT):
+        current_day = (last_start.date() - timedelta(days=offset))
+        day_start = datetime.combine(current_day, datetime.min.time())
+        day_end = datetime.combine(current_day, datetime.max.time())
+
+        # Для первого дня используем last_start, далее — от начала дня
+        batch_start = last_start if offset == 0 else day_start
+        batch_end = day_end
+
+        print(f"Processing {current_day}: {batch_start} → {batch_end}")
+        total = 0
+        next_start = batch_start
+
+        while next_start <= batch_end:
+            date1 = next_start.strftime('%Y-%m-%d %H:%M:%S')
+            date2 = batch_end.strftime('%Y-%m-%d %H:%M:%S')
+
+            ads = fetch_ads_batch(date1=date1, date2=date2, city="Москва", limit=1000)
+            if not ads:
                 break
 
-            insert_ads_batch(cursor, batch)
+            insert_ads_batch(cursor, ads)
             conn.commit()
-            count = len(batch)
-            total_day += count
-            print(f"  Inserted {count} ads for {current} (from {last_start})")
 
-            last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
-            last_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
+            count = len(ads)
+            total += count
+            print(f"  Inserted {count} ads from {date1}")
+
+            # Готовимся к следующей порции
+            last_item_time = datetime.fromisoformat(ads[-1]["time"])
+            next_start = last_item_time + timedelta(seconds=1)
+
+            # Пауза 6 секунд между запросами
+            time.sleep(6)
+
             if count < 1000:
                 break
-            time.sleep(BATCH_DELAY)
 
-        print(f"Finished processing {current}: {total_day} ads inserted")
+        print(f"Finished {current_day}: {total} ads inserted\n")
 
     cursor.close()
     conn.close()
     print("All days processed.")
+
 
 if __name__ == "__main__":
     main()
