@@ -6,17 +6,30 @@ from psycopg2.extras import Json
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
-# Загрузка конфигурации из .env
+# Настройки: начало отсчёта и количество дней назад
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 ADS_API_USER = os.getenv("ADS_API_USER")
 ADS_API_TOKEN = os.getenv("ADS_API_TOKEN")
 ADS_API_URL = "https://ads-api.ru/main/api"
 
+# Через .env задаются:
+# DATE_START: 'YYYY-MM-DD'
+# DAYS_COUNT: число дней для обработки
+# BATCH_DELAY: задержка между пачками в секундах (по умолчанию 5)
+# MAX_RETRIES: число повторных попыток при HTTPError (429)
+DATE_START = os.getenv("DATE_START", datetime.now().strftime('2025-07-07'))
+DAYS_COUNT = int(os.getenv("DAYS_COUNT", "5"))
+BATCH_DELAY = int(os.getenv("BATCH_DELAY", "5"))
+MAX_RETRIES = int(os.getenv("MAX_RETRIES", "30"))
+RETRY_DELAY = int(os.getenv("RETRY_DELAY", "10"))
+
+
 def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None, limit: int = 1000):
     """
     Получает одну страницу объявлений за интервал date1..date2.
     Фильтры: квартиры (category_id=2), продажа (nedvigimost_type=1).
+    При HTTPError 429 ретрай не более MAX_RETRIES раз с задержкой RETRY_DELAY.
     """
     params = {
         "user": ADS_API_USER,
@@ -34,10 +47,22 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
     if source:
         params["source"] = source
 
-    print(f"Requesting ads from {date1} to {date2}")
-    resp = requests.get(ADS_API_URL, params=params)
-    resp.raise_for_status()
-    return resp.json().get("data", [])
+    attempt = 0
+    while True:
+        try:
+            print(f"Requesting ads from {date1} to {date2}, attempt {attempt+1}")
+            resp = requests.get(ADS_API_URL, params=params)
+            resp.raise_for_status()
+            return resp.json().get("data", [])
+        except requests.exceptions.HTTPError as e:
+            if resp.status_code == 429 and attempt < MAX_RETRIES:
+                attempt += 1
+                print(f"429 Too Many Requests, retry in {RETRY_DELAY}s (attempt {attempt}/{MAX_RETRIES})")
+                time.sleep(RETRY_DELAY)
+                continue
+            else:
+                raise
+
 
 def insert_ads_batch(cursor, ads):
     """
@@ -46,17 +71,14 @@ def insert_ads_batch(cursor, ads):
     for ad in ads:
         for field in ["person_type", "nedvigimost_type", "cat1", "cat2", "source"]:
             ad.pop(field, None)
-
         coords = ad.get("coords") or {}
         try:
             lat = float(coords.get("lat")) if coords.get("lat") else None
             lng = float(coords.get("lng")) if coords.get("lng") else None
-        except (ValueError, TypeError):
-            lat = lng = None
+        except (ValueError, TypeError): lat = lng = None
         try:
             km = float(ad.get("km_do_metro")) if ad.get("km_do_metro") else None
-        except (ValueError, TypeError):
-            km = None
+        except (ValueError, TypeError): km = None
 
         cursor.execute("""
             INSERT INTO ads (
@@ -106,44 +128,46 @@ def insert_ads_batch(cursor, ads):
 
 
 def main():
-    today = datetime.now().date()
-    yesterday = today - timedelta(days=1)
-    date_start = datetime.combine(yesterday, datetime.min.time()).strftime('%Y-%m-%d 00:00:00')
-    date_end = datetime.combine(yesterday, datetime.max.time()).strftime('%Y-%m-%d 23:59:59')
-
-    print(f"Start fetching ads from {date_start} to {date_end}")
-
+    start_date = datetime.strptime(DATE_START, '%Y-%m-%d').date()
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
-    total = 0
-    while True:
-        batch = fetch_ads_batch(
-            date1=date_start,
-            date2=date_end,
-            city="Москва",
-            source="1,2,3,4",
-            limit=1000
-        )
-        if not batch:
-            break
 
-        insert_ads_batch(cursor, batch)
-        conn.commit()
-        count = len(batch)
-        total += count
-        print(f"Inserted batch of {count} ads.")
+    for i in range(DAYS_COUNT):
+        current = start_date - timedelta(days=i)
+        date1 = datetime.combine(current, datetime.min.time()).strftime('%Y-%m-%d 00:00:00')
+        date2 = datetime.combine(current, datetime.max.time()).strftime('%Y-%m-%d 23:59:59')
+        print(f"Processing day: {current}")
 
-        # смещаем начало на последнюю запись
-        last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
-        date_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
-        if count < 1000:
-            break
-        time.sleep(1)
+        total_day = 0
+        last_start = date1
+        while True:
+            batch = fetch_ads_batch(
+                date1=last_start,
+                date2=date2,
+                city="Москва",
+                source="1,2,3,4",
+                limit=1000
+            )
+            if not batch:
+                break
+
+            insert_ads_batch(cursor, batch)
+            conn.commit()
+            count = len(batch)
+            total_day += count
+            print(f"  Inserted {count} ads for {current} (from {last_start})")
+
+            last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
+            last_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
+            if count < 1000:
+                break
+            time.sleep(BATCH_DELAY)
+
+        print(f"Finished processing {current}: {total_day} ads inserted")
 
     cursor.close()
     conn.close()
-    print(f"Done inserting total {total} ads.")
-
+    print("All days processed.")
 
 if __name__ == "__main__":
     main()
