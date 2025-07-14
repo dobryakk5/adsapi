@@ -148,7 +148,7 @@ def main():
            time_source_created, time_source_updated,
            params, params2, is_actual, avitoid,
            nedvigimost_type_id, description
-      FROM ads WHERE processed IS FALSE LIMIT 50;
+      FROM ads WHERE processed IS FALSE LIMIT 20;
     """
     )
     rows = cur.fetchall()

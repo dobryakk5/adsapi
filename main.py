@@ -1,5 +1,5 @@
 import os
-import json
+import time
 import requests
 import psycopg2
 from psycopg2.extras import Json
@@ -13,181 +13,137 @@ ADS_API_USER = os.getenv("ADS_API_USER")
 ADS_API_TOKEN = os.getenv("ADS_API_TOKEN")
 ADS_API_URL = "https://ads-api.ru/main/api"
 
-def fetch_ads(
-    city: str = None,
-    metro: str = None,
-    rooms_count: int = None,
-    source: str = None,
-    person_type: int = 3,
-    created_from: str = None,
-    created_to: str = None,
-    updated_from: str = None,
-    updated_to: str = None,
-    limit: int = 10
-):
-    # Если даты не заданы — берём вчера и сегодня
-    if not created_from and not created_to:
-        today = datetime.now().date()
-        yesterday = today - timedelta(days=1)
-        created_from = yesterday.strftime('%Y-%m-%d')
-        created_to = today.strftime('%Y-%m-%d')
-
+def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None, limit: int = 1000):
+    """
+    Получает одну страницу объявлений за интервал date1..date2.
+    Фильтры: квартиры (category_id=2), продажа (nedvigimost_type=1).
+    """
     params = {
         "user": ADS_API_USER,
         "token": ADS_API_TOKEN,
         "format": "json",
         "limit": limit,
-        "person_type": person_type,
-        "category_id": 2,      # Квартиры
-        "nedvigimost_type": 1, # Продам
+        "category_id": 2,
+        "nedvigimost_type": 1,
+        "sort": "asc",
+        "date1": date1,
+        "date2": date2,
     }
-    if created_from:
-        params["date1"] = created_from
-    if created_to:
-        params["date2"] = created_to
     if city:
         params["city"] = city
-    if metro:
-        params["metro"] = metro
-    if rooms_count:
-        params["param[2313]"] = rooms_count
     if source:
         params["source"] = source
 
-    print(f"Requesting URL: {ADS_API_URL} with params: {params}")
-    response = requests.get(ADS_API_URL, params=params)
-    response.raise_for_status()
-    ads = response.json().get("data", [])
+    print(f"Requesting ads from {date1} to {date2}")
+    resp = requests.get(ADS_API_URL, params=params)
+    resp.raise_for_status()
+    return resp.json().get("data", [])
 
-    # Фильтрация по дате обновления
-    def in_range(dt_str, start, end):
-        if not dt_str:
-            return False
-        dt = datetime.fromisoformat(dt_str)
-        if start and dt < datetime.fromisoformat(start):
-            return False
-        if end and dt > datetime.fromisoformat(end):
-            return False
-        return True
+def insert_ads_batch(cursor, ads):
+    """
+    Вставляет пачку объявлений в БД, исключая ненужные поля.
+    """
+    for ad in ads:
+        for field in ["person_type", "nedvigimost_type", "cat1", "cat2", "source"]:
+            ad.pop(field, None)
 
-    if updated_from or updated_to:
-        ads = [
-            ad for ad in ads
-            if in_range(ad.get("time_source_updated"), updated_from, updated_to)
-        ]
+        coords = ad.get("coords") or {}
+        try:
+            lat = float(coords.get("lat")) if coords.get("lat") else None
+            lng = float(coords.get("lng")) if coords.get("lng") else None
+        except (ValueError, TypeError):
+            lat = lng = None
+        try:
+            km = float(ad.get("km_do_metro")) if ad.get("km_do_metro") else None
+        except (ValueError, TypeError):
+            km = None
 
-    return ads
+        cursor.execute("""
+            INSERT INTO ads (
+                id, url, price, "time", time_source_created, time_source_updated,
+                person, person_type_id, city, metro_only, district_only,
+                address, description, nedvigimost_type_id, avitoid,
+                cat1_id, cat2_id, source_id, is_actual, km_do_metro,
+                coords_lat, coords_lng, images, params, params2,
+                processed, debug
+            ) VALUES (
+                %(id)s, %(url)s, %(price)s, %(time)s, %(time_source_created)s, %(time_source_updated)s,
+                %(person)s, %(person_type_id)s, %(city)s, %(metro_only)s, %(district_only)s,
+                %(address)s, %(description)s, %(nedvigimost_type_id)s, %(avitoid)s,
+                %(cat1_id)s, %(cat2_id)s, %(source_id)s, %(is_actual)s, %(km_do_metro)s,
+                %(coords_lat)s, %(coords_lng)s, %(images)s, %(params)s, %(params2)s,
+                %(processed)s, %(debug)s
+            ) ON CONFLICT (id) DO NOTHING;
+        """, {
+            "id": ad.get("id"),
+            "url": ad.get("url"),
+            "price": ad.get("price"),
+            "time": ad.get("time"),
+            "time_source_created": ad.get("time_source_created"),
+            "time_source_updated": ad.get("time_source_updated"),
+            "person": ad.get("person"),
+            "person_type_id": ad.get("person_type_id"),
+            "city": ad.get("city"),
+            "metro_only": ad.get("metro_only"),
+            "district_only": ad.get("district_only"),
+            "address": ad.get("address"),
+            "description": ad.get("description"),
+            "nedvigimost_type_id": ad.get("nedvigimost_type_id"),
+            "avitoid": ad.get("avitoid"),
+            "cat1_id": ad.get("cat1_id"),
+            "cat2_id": ad.get("cat2_id"),
+            "source_id": ad.get("source_id"),
+            "is_actual": ad.get("is_actual"),
+            "km_do_metro": km,
+            "coords_lat": lat,
+            "coords_lng": lng,
+            "images": Json(ad.get("images", [])),
+            "params": Json(ad.get("params", {})),
+            "params2": Json(ad.get("params2", {})),
+            "processed": False,
+            "debug": Json({})
+        })
 
-
-def insert_ad(cursor, ad):
-    # Координаты
-    coords = ad.get("coords") or {}
-    try:
-        lat = float(coords.get("lat")) if coords.get("lat") else None
-        lng = float(coords.get("lng")) if coords.get("lng") else None
-    except ValueError:
-        lat = lng = None
-
-    # До метро
-    try:
-        km = float(ad.get("km_do_metro")) if ad.get("km_do_metro") else None
-    except ValueError:
-        km = None
-
-    # Извлекаем тип дома из params или из поля param_2009
-    params_dict = ad.get("params", {})
-    house_type = params_dict.get("2009") or ad.get("param_2009")
-
-    cursor.execute("""
-        INSERT INTO ads (
-            id, url, title, price, price_metric, time, time_source_created,
-            time_source_updated, phone, phone_protected, phone_operator, phone_region,
-            person, person_type, person_type_id, contactname, city, city1, region,
-            metro, metro_only, district_only, address, description,
-            nedvigimost_type, nedvigimost_type_id, avitoid, cat1_id, cat2_id,
-            cat1, cat2, source, source_id, is_actual, km_do_metro, coords_lat, coords_lng,
-            images, params, params2, param_raw, count_ads_same_phone,
-            house_type
-        ) VALUES (
-            %(id)s, %(url)s, %(title)s, %(price)s, %(price_metric)s, %(time)s, %(time_source_created)s,
-            %(time_source_updated)s, %(phone)s, %(phone_protected)s, %(phone_operator)s, %(phone_region)s,
-            %(person)s, %(person_type)s, %(person_type_id)s, %(contactname)s, %(city)s, %(city1)s, %(region)s,
-            %(metro)s, %(metro_only)s, %(district_only)s, %(address)s, %(description)s,
-            %(nedvigimost_type)s, %(nedvigimost_type_id)s, %(avitoid)s, %(cat1_id)s, %(cat2_id)s,
-            %(cat1)s, %(cat2)s, %(source)s, %(source_id)s, %(is_actual)s, %(km_do_metro)s, %(coords_lat)s, %(coords_lng)s,
-            %(images)s, %(params)s, %(params2)s, %(param_raw)s, %(count_ads_same_phone)s,
-            %(house_type)s
-        )
-        ON CONFLICT (id) DO NOTHING;
-    """, {
-        "id":                   ad.get("id"),
-        "url":                  ad.get("url"),
-        "title":                ad.get("title"),
-        "price":                ad.get("price"),
-        "price_metric":         ad.get("price_metric"),
-        "time":                 ad.get("time"),
-        "time_source_created":  ad.get("time_source_created"),
-        "time_source_updated":  ad.get("time_source_updated"),
-        "phone":                ad.get("phone"),
-        "phone_protected":      bool(ad.get("phone_protected")) if ad.get("phone_protected") is not None else None,
-        "phone_operator":       ad.get("phone_operator"),
-        "phone_region":         ad.get("phone_region"),
-        "person":               ad.get("person"),
-        "person_type":          ad.get("person_type"),
-        "person_type_id":       ad.get("person_type_id"),
-        "contactname":          ad.get("contactname"),
-        "city":                 ad.get("city"),
-        "city1":                ad.get("city1"),
-        "region":               ad.get("region"),
-        "metro":                ad.get("metro"),
-        "metro_only":           ad.get("metro_only"),
-        "district_only":        ad.get("district_only"),
-        "address":              ad.get("address"),
-        "description":          ad.get("description"),
-        "nedvigimost_type":     ad.get("nedvigimost_type"),
-        "nedvigimost_type_id":  ad.get("nedvigimost_type_id"),
-        "avitoid":              ad.get("avitoid"),
-        "cat1_id":              ad.get("cat1_id"),
-        "cat2_id":              ad.get("cat2_id"),
-        "cat1":                 ad.get("cat1"),
-        "cat2":                 ad.get("cat2"),
-        "source":               ad.get("source"),
-        "source_id":            ad.get("source_id"),
-        "is_actual":            ad.get("is_actual"),
-        "km_do_metro":          km,
-        "coords_lat":           lat,
-        "coords_lng":           lng,
-        "images":               Json(ad.get("images", [])),
-        "params":               Json(ad.get("params", {})),
-        "params2":              Json(ad.get("params2", {})),
-        "param_raw":            Json({k: v for k, v in ad.items() if k.startswith("param[")}),
-        "count_ads_same_phone": ad.get("count_ads_same_phone"),
-        "house_type":           house_type,
-    })
 
 def main():
-    ads = fetch_ads(
-        city="Москва",
-        source="1,2,3,4",
-        person_type=3,
-        limit=50
-    )
-    print(f"Fetched {len(ads)} ads from API.")
+    today = datetime.now().date()
+    yesterday = today - timedelta(days=1)
+    date_start = datetime.combine(yesterday, datetime.min.time()).strftime('%Y-%m-%d 00:00:00')
+    date_end = datetime.combine(yesterday, datetime.max.time()).strftime('%Y-%m-%d 23:59:59')
+
+    print(f"Start fetching ads from {date_start} to {date_end}")
 
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
+    total = 0
+    while True:
+        batch = fetch_ads_batch(
+            date1=date_start,
+            date2=date_end,
+            city="Москва",
+            source="1,2,3,4",
+            limit=1000
+        )
+        if not batch:
+            break
 
-    for ad in ads:
-        try:
-            insert_ad(cursor, ad)
-        except Exception as e:
-            print(f"Failed to insert ad {ad.get('id')}: {e}")
-            conn.rollback()
+        insert_ads_batch(cursor, batch)
+        conn.commit()
+        count = len(batch)
+        total += count
+        print(f"Inserted batch of {count} ads.")
 
-    conn.commit()
+        # смещаем начало на последнюю запись
+        last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
+        date_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
+        if count < 1000:
+            break
+        time.sleep(1)
+
     cursor.close()
     conn.close()
-    print("Done inserting ads.")
+    print(f"Done inserting total {total} ads.")
+
 
 if __name__ == "__main__":
     main()
