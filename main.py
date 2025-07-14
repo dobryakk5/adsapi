@@ -154,41 +154,57 @@ def main():
     print(f"[LOG] Minimal day: {min_day}", flush=True)
     print(f"[LOG] Max time in minimal day: {max_time}", flush=True)
 
-    # Основной цикл по дням назад
-    start_date = datetime.strptime(DATE_START, '%Y-%m-%d').date()
-    for i in range(DAYS_COUNT):
-        current = start_date - timedelta(days=i)
+        # Основной алгоритм:
+    # 1) Сначала добираем остатки минимального дня (min_day)
+    start_of_min = datetime.combine(min_day, datetime.min.time())
+    end_of_min = datetime.combine(min_day, datetime.max.time())
+    # Если в минимальном дне есть макстайм, начинаем после него, иначе — с начала дня
+    if max_time:
+        next_start = (max_time + timedelta(seconds=1)).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        next_start = start_of_min.strftime('%Y-%m-%d %H:%M:%S')
+    print(f"Processing minimal day: {min_day} from {next_start} to {end_of_min}", flush=True)
+    total_min = 0
+    while True:
+        batch = fetch_ads_batch(date1=next_start, date2=end_of_min.strftime('%Y-%m-%d %H:%M:%S'), city="Москва", source="1,2,3,4")
+        if not batch:
+            break
+        insert_ads_batch(cursor, batch)
+        conn.commit()
+        count = len(batch)
+        total_min += count
+        last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
+        next_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
+        print(f"  Inserted {count} ads for {min_day} (from {next_start})", flush=True)
+        if count < 1000:
+            break
+        time.sleep(BATCH_DELAY)
+    print(f"Finished minimal day {min_day}: {total_min} ads inserted", flush=True)
+    time.sleep(BATCH_DELAY)
+
+    # 2) Дальше обрабатываем предыдущие дни: min_day-1, минус DAYS_COUNT-1 дней
+    for d in range(1, DAYS_COUNT):
+        current = min_day - timedelta(days=d)
         date1 = datetime.combine(current, datetime.min.time()).strftime('%Y-%m-%d %H:%M:%S')
         date2 = datetime.combine(current, datetime.max.time()).strftime('%Y-%m-%d %H:%M:%S')
-        print(f"Processing day: {current} (Day {i+1}/{DAYS_COUNT})", flush=True)
-
+        print(f"Processing day: {current} (Day {d+1}/{DAYS_COUNT})", flush=True)
         total_day = 0
-        last_start = date1
+        next_start = date1
         while True:
-            batch = fetch_ads_batch(
-                date1=last_start,
-                date2=date2,
-                city="Москва",
-                source="1,2,3,4",
-                limit=1000
-            )
+            batch = fetch_ads_batch(date1=next_start, date2=date2, city="Москва", source="1,2,3,4")
             if not batch:
                 break
-
             insert_ads_batch(cursor, batch)
             conn.commit()
             count = len(batch)
             total_day += count
-            print(f"  Inserted {count} ads for {current} (from {last_start})", flush=True)
-
             last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
-            last_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
+            next_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
+            print(f"  Inserted {count} ads for {current} (from {next_start})", flush=True)
             if count < 1000:
                 break
             time.sleep(BATCH_DELAY)
-
         print(f"Finished processing {current}: {total_day} ads inserted", flush=True)
-        # Пауза между днями, чтобы избежать 429 на первом запросе следующего дня
         time.sleep(BATCH_DELAY)
 
     cursor.close()
