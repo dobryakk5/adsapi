@@ -18,8 +18,8 @@ ADS_API_URL = "https://ads-api.ru/main/api"
 # DAYS_COUNT: число дней для обработки
 # BATCH_DELAY: задержка между пачками в секундах (по умолчанию 5)
 # MAX_RETRIES: число повторных попыток при HTTPError (429)
-DATE_START = os.getenv("DATE_START", datetime.now().strftime('2025-07-07'))
-DAYS_COUNT = int(os.getenv("DAYS_COUNT", "5"))
+DATE_START = os.getenv("DATE_START", datetime.now().strftime('2025-07-12'))
+DAYS_COUNT = int(os.getenv("DAYS_COUNT", "30"))
 BATCH_DELAY = int(os.getenv("BATCH_DELAY", "5"))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "30"))
 RETRY_DELAY = int(os.getenv("RETRY_DELAY", "10"))
@@ -145,7 +145,7 @@ def main():
                 date1=last_start,
                 date2=date2,
                 city="Москва",
-                source="1,2,3,4",
+                #source="1,2,3,4",
                 limit=1000
             )
             if not batch:
