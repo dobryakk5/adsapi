@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import requests
 import psycopg2
@@ -15,11 +16,21 @@ ADS_API_URL = "https://ads-api.ru/main/api"
 
 # Через .env задаются:
 # DATE_START: 'YYYY-MM-DD'
-# DAYS_COUNT: число дней для обработки
-# BATCH_DELAY: задержка между пачками в секундах (по умолчанию 5)
+# DAYS_COUNT: число дней для обработки (можно переопределить аргументом)
+# BATCH_DELAY: задержка между пачками и между днями в секундах (по умолчанию 5)
 # MAX_RETRIES: число повторных попыток при HTTPError (429)
-DATE_START = os.getenv("DATE_START", datetime.now().strftime('2025-07-13'))
-DAYS_COUNT = int(os.getenv("DAYS_COUNT", "5"))
+# RETRY_DELAY: пауза при retry
+DATE_START = os.getenv("DATE_START", datetime.now().strftime('%Y-%m-%d'))
+# Считываем DAYS_COUNT из argv при наличии
+if len(sys.argv) > 1:
+    try:
+        DAYS_COUNT = int(sys.argv[1])
+    except ValueError:
+        print(f"Invalid DAYS_COUNT argument: {sys.argv[1]}")
+        sys.exit(1)
+else:
+    DAYS_COUNT = int(os.getenv("DAYS_COUNT", "30"))
+
 BATCH_DELAY = int(os.getenv("BATCH_DELAY", "5"))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "30"))
 RETRY_DELAY = int(os.getenv("RETRY_DELAY", "10"))
@@ -54,7 +65,7 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
             resp = requests.get(ADS_API_URL, params=params)
             resp.raise_for_status()
             return resp.json().get("data", [])
-        except requests.exceptions.HTTPError as e:
+        except requests.exceptions.HTTPError:
             if resp.status_code == 429 and attempt < MAX_RETRIES:
                 attempt += 1
                 print(f"429 Too Many Requests, retry in {RETRY_DELAY}s (attempt {attempt}/{MAX_RETRIES})")
@@ -128,10 +139,6 @@ def insert_ads_batch(cursor, ads):
 
 
 def main():
-    # Начало main + гарантия вывода
-    print(f"[LOG] Starting main at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
-
-    # Подключаемся к базе
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -153,7 +160,7 @@ def main():
         current = start_date - timedelta(days=i)
         date1 = datetime.combine(current, datetime.min.time()).strftime('%Y-%m-%d %H:%M:%S')
         date2 = datetime.combine(current, datetime.max.time()).strftime('%Y-%m-%d %H:%M:%S')
-        print(f"Processing day: {current}", flush=True)
+        print(f"Processing day: {current} (Day {i+1}/{DAYS_COUNT})", flush=True)
 
         total_day = 0
         last_start = date1
@@ -162,7 +169,7 @@ def main():
                 date1=last_start,
                 date2=date2,
                 city="Москва",
-                #source="1,2,3,4",
+                source="1,2,3,4",
                 limit=1000
             )
             if not batch:
@@ -181,6 +188,8 @@ def main():
             time.sleep(BATCH_DELAY)
 
         print(f"Finished processing {current}: {total_day} ads inserted", flush=True)
+        # Пауза между днями, чтобы избежать 429 на первом запросе следующего дня
+        time.sleep(BATCH_DELAY)
 
     cursor.close()
     conn.close()
