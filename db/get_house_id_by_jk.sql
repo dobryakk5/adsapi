@@ -15,22 +15,36 @@ DECLARE
     v_corp_raw   TEXT;
     v_corp_clean TEXT;
     v_parts TEXT[];  -- Для разбивки адреса
+	rec RECORD;
 BEGIN
     -- 0. Проверка входа
     IF p_jk_name IS NULL OR btrim(p_jk_name) = '' THEN
         RETURN NULL;
     END IF;
 
-    -- 1. Очищаем ввод: оставляем только буквы и пробелы, удаляем дубли пробелов и префикс "жк"
+-- 1) Пытаемся найти по title_cian
+	  SELECT id
+	    INTO v_complex_id
+	  FROM complexes cmp
+	  WHERE cmp.title_cian ilike p_jk_name
+	  LIMIT 1;   
+
+-- 1.1 Очищаем ввод: оставляем только буквы и пробелы, удаляем дубли пробелов и префикс "жк"
     v_jk_clean := regexp_replace(p_jk_name, '[^[:alpha:]\s]', ' ', 'g');
     v_jk_clean := regexp_replace(v_jk_clean, '\s+', ' ', 'g');
     v_jk_clean := btrim(lower(regexp_replace(v_jk_clean, '^жк\s*', '', 'gi')));
 
-    -- 1.1. Прямой поиск полной фразы
-    SELECT id INTO v_complex_id
-    FROM complexes cmp
-    WHERE cmp.title ILIKE '%' || v_jk_clean || '%'
-    LIMIT 1;
+
+  -- 1.15) Иначе ищем по title
+	  IF v_complex_id IS NULL THEN
+		  SELECT id
+		    INTO v_complex_id
+		  FROM complexes cmp
+		  WHERE cmp.title LIKE '%' || v_jk_clean || '%'
+		  LIMIT 1;
+	  END IF;
+	 
+
 
     -- 1.2. Если не найдено — уточняем по последним 1..3 словам
     IF v_complex_id IS NULL THEN
@@ -66,6 +80,7 @@ BEGIN
         END LOOP;
     END IF;
 
+
     -- 1.4. CamelCase‑фоллбэк
     IF v_complex_id IS NULL AND p_jk_name ~ '^[A-ZА-Я][a-zа-я]+([A-ZА-Я][a-zа-я]+)+$' THEN
         v_jk_clean := lower(
@@ -83,15 +98,32 @@ BEGIN
     END IF;
 
     -- 1.5. Fuzzy‑поиск по транслитерированному значению
-    IF v_complex_id IS NULL THEN
-        v_jk_ascii := system.transliterate_to_ascii(v_jk_clean);
-        SELECT id
-          INTO v_complex_id
-        FROM complexes cmp
-        WHERE system.similarity(cmp.title_lat, v_jk_ascii) > 0.5
-        ORDER BY system.similarity(cmp.title_lat, v_jk_ascii) DESC
-        LIMIT 1;
-    END IF;
+	IF v_complex_id IS NULL THEN
+	  -- 1) Подготовка входа: убрали диакритики, транслитерировали, в нижний регистр
+	  v_jk_ascii := lower(
+	    system.transliterate_to_ascii(unaccent(v_jk_clean))
+	  );
+		--RAISE NOTICE 'v_jk_ascii = %', v_jk_ascii;
+	
+	  -- 2) Один запрос: внутри CTE/подзапроса считаем схожесть по обоим полям
+	  WITH sims AS (
+	    SELECT
+	      id,
+	      greatest(
+	        system.similarity(lower(system.transliterate_to_ascii(unaccent(title_lat))),   v_jk_ascii),
+	        system.similarity(lower(system.transliterate_to_ascii(unaccent(title_ascii))), v_jk_ascii)
+	      ) AS sim
+	    FROM complexes
+	  )
+	  SELECT id
+	    INTO v_complex_id
+	  FROM sims
+	  WHERE sim > 0.5
+	  ORDER BY sim DESC
+	  LIMIT 1;
+	END IF;
+
+
 
     -- Если ЖК не найден — уведомляем и возвращаем NULL
     IF v_complex_id IS NULL THEN

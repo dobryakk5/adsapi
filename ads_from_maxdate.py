@@ -36,7 +36,7 @@ MAX_RETRIES = int(os.getenv("MAX_RETRIES", "30"))
 RETRY_DELAY = int(os.getenv("RETRY_DELAY", "10"))
 
 
-def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None, limit: int = 1000):
+def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None, limit: int = 100):
     """
     Получает одну страницу объявлений за интервал date1..date2.
     Фильтры: квартиры (category_id=2), продажа (nedvigimost_type=1).
@@ -77,20 +77,44 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
 
 def insert_ads_batch(cursor, ads):
     """
-    Вставляет пачку объявлений в БД, исключая ненужные поля.
+    Вставляет пачку объявлений в БД, исключая ненужные поля
+    и объявления из нежелательных локаций.
     """
+    # Списки подстрок для фильтрации (в нижнем регистре)
+    exclude_city = ['зеленоград', 'новая москва']
+    exclude_district = ['нао']
+    exclude_address = ['новомосковский', 'зеленоград', 'троицк', 'обл.', 'люберцы', 'балашиха']
+
     for ad in ads:
+        city = (ad.get("city") or "").lower()
+        district = (ad.get("district_only") or "").lower()
+        address = (ad.get("address") or "").lower()
+
+        # Пропускаем объявления из нежелательных локаций
+        if any(sub in city for sub in exclude_city):
+            continue
+        if any(sub in district for sub in exclude_district):
+            continue
+        if any(sub in address for sub in exclude_address):
+            continue
+
+        # Удаляем ненужные поля
         for field in ["person_type", "nedvigimost_type", "cat1", "cat2", "source"]:
             ad.pop(field, None)
+
+        # Парсим координаты и расстояние до метро
         coords = ad.get("coords") or {}
         try:
             lat = float(coords.get("lat")) if coords.get("lat") else None
             lng = float(coords.get("lng")) if coords.get("lng") else None
-        except (ValueError, TypeError): lat = lng = None
+        except (ValueError, TypeError):
+            lat = lng = None
         try:
             km = float(ad.get("km_do_metro")) if ad.get("km_do_metro") else None
-        except (ValueError, TypeError): km = None
+        except (ValueError, TypeError):
+            km = None
 
+        # Вставка в базу
         cursor.execute("""
             INSERT INTO ads (
                 id, url, price, "time", time_source_created, time_source_updated,
@@ -138,13 +162,11 @@ def insert_ads_batch(cursor, ads):
         })
 
 
-# ... [импорты, переменные окружения и fetch_ads_batch, insert_ads_batch — без изменений]
-
 def main():
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
-    # 🔧 Получаем максимально сохранённую дату
+    # Получаем максимально сохранённую дату в истории
     cursor.execute("SELECT MAX(time_source_updated) FROM flats_history;")
     last_saved_time = cursor.fetchone()[0]
 
@@ -152,6 +174,7 @@ def main():
         print("[WARN] flats_history пуст — используем DATE_START")
         last_saved_time = datetime.strptime(DATE_START, '%Y-%m-%d')
 
+    # Интервал для загрузки
     date1 = (last_saved_time + timedelta(seconds=1)).strftime('%Y-%m-%d %H:%M:%S')
     date2 = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -160,6 +183,7 @@ def main():
     total = 0
     next_start = date1
 
+    # Цикл по партиям
     while True:
         batch = fetch_ads_batch(date1=next_start, date2=date2, city="Москва", source="1,2,3,4")
         if not batch:
@@ -176,9 +200,13 @@ def main():
         time.sleep(BATCH_DELAY)
 
     print(f"[DONE] Total inserted: {total}", flush=True)
+    # Вызов хранимой процедуры для обработки пачки
+    cursor.execute("CALL process_ads_batch('100');")
+    conn.commit()
 
     cursor.close()
     conn.close()
+
 
 if __name__ == "__main__":
     main()
