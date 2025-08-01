@@ -83,7 +83,7 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
 
 def insert_ads_batch(cursor, ads):
     exclude_city = ['зеленоград', 'новая москва', 'область']
-    exclude_district = ['нао']
+    exclude_district = ['нао', 'тао']
     exclude_address = ['новомосковский', 'зеленоград', 'десёновское', 'троицк', 'коммунарка', 'красногорск', 'обл.', 'люберцы', 'балашиха','нао']
 
     for ad in ads:
