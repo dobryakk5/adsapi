@@ -165,6 +165,17 @@ def main():
     cursor.execute("CALL process_all_ads();")
     conn.commit()
 
+
+    # ждём, пока не обнулится число необработанных объявлений
+    while True:
+        cursor.execute("SELECT COUNT(*) FROM ads WHERE processed = FALSE;")
+        remaining = cursor.fetchone()[0]
+        if remaining == 0:
+            logger.info("Все объявления обработаны.")
+            break
+        #logger.info(f"Ожидание обработки: {remaining} записей осталось...")
+        time.sleep(5)
+
     # Определяем точку продолжения
     cursor.execute("SELECT MAX(time_source_updated) FROM ads;")
     last_saved = cursor.fetchone()[0]
