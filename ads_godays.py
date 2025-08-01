@@ -84,7 +84,7 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
 def insert_ads_batch(cursor, ads):
     exclude_city = ['зеленоград', 'новая москва', 'область']
     exclude_district = ['нао']
-    exclude_address = ['новомосковский', 'зеленоград', 'троицк', 'красногорск', 'обл.', 'люберцы', 'балашиха','нао']
+    exclude_address = ['новомосковский', 'зеленоград', 'десёновское', 'троицк', 'коммунарка', 'красногорск', 'обл.', 'люберцы', 'балашиха','нао']
 
     for ad in ads:
         city = (ad.get("city") or "").lower()
@@ -165,17 +165,6 @@ def main():
     cursor.execute("CALL process_all_ads();")
     conn.commit()
 
-
-    # ждём, пока не обнулится число необработанных объявлений
-    while True:
-        cursor.execute("SELECT COUNT(*) FROM ads WHERE processed = FALSE;")
-        remaining = cursor.fetchone()[0]
-        if remaining == 0:
-            logger.info("Все объявления обработаны.")
-            break
-        #logger.info(f"Ожидание обработки: {remaining} записей осталось...")
-        time.sleep(5)
-
     # Определяем точку продолжения
     cursor.execute("SELECT MAX(time_source_updated) FROM ads;")
     last_saved = cursor.fetchone()[0]
@@ -210,14 +199,16 @@ def main():
 
             insert_ads_batch(cursor, batch)
             conn.commit()
+            # Обработка вставленных объявлений сразу после каждой пачки
+            cursor.execute("CALL process_all_ads();")
+            conn.commit()
 
             cnt = len(batch)
             total += cnt
             last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
             next_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
-            logger.info(f"  Inserted {cnt} ads, next start: {next_start}")
+            logger.info(f"  Inserted {cnt} ads, processed, next start: {next_start}")
 
-            # Продолжаем, пока есть пачки по BATCH_LIMIT
             if cnt < BATCH_LIMIT:
                 break
 
@@ -226,9 +217,7 @@ def main():
         current_day += timedelta(days=1)
         time.sleep(BATCH_DELAY)
 
-    logger.info(f"Done. Total inserted for period: {total}")
-    cursor.execute("CALL process_all_ads();")
-    conn.commit()
+    logger.info(f"Done. Total inserted and processed for period: {total}")
     cursor.close()
     conn.close()
 
