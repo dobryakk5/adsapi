@@ -44,7 +44,7 @@ DAYS_COUNT = int(os.getenv("DAYS_COUNT", "0"))
 BATCH_DELAY = int(os.getenv("BATCH_DELAY", "5"))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "30"))
 RETRY_DELAY = int(os.getenv("RETRY_DELAY", "10"))
-BATCH_LIMIT = int(os.getenv("BATCH_LIMIT", "200"))
+BATCH_LIMIT = int(os.getenv("BATCH_LIMIT", "1000"))
 
 
 def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None, limit: int = BATCH_LIMIT):
