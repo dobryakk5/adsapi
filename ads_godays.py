@@ -204,7 +204,7 @@ def main():
                     date1=next_start,
                     date2=day_end,
                     city="Москва",
-                    source="1,2,3,4",
+                    #source="1,2,3,4",
                     limit=BATCH_LIMIT
                 )
                 if not batch:
