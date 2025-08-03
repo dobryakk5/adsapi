@@ -39,12 +39,12 @@ ADS_API_TOKEN = os.getenv("ADS_API_TOKEN")
 ADS_API_URL = os.getenv("ADS_API_URL", "https://ads-api.ru/main/api")
 
 # Параметры
-DATE_START = os.getenv("DATE_START", "2025-01-01")  # e.g. "2025-01-01" или None
-DAYS_COUNT = int(os.getenv("DAYS_COUNT", "0"))
+DATE_START = os.getenv("DATE_START", "2025-01-01")
 BATCH_DELAY = int(os.getenv("BATCH_DELAY", "5"))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "30"))
 RETRY_DELAY = int(os.getenv("RETRY_DELAY", "10"))
 BATCH_LIMIT = int(os.getenv("BATCH_LIMIT", "1000"))
+PAUSE_AFTER = 30 * 60  # пауза 30 минут
 
 
 def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None, limit: int = BATCH_LIMIT):
@@ -70,7 +70,9 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
             logger.info(f"Requesting ads from {date1} to {date2}, attempt {attempt+1}")
             resp = requests.get(ADS_API_URL, params=params)
             resp.raise_for_status()
-            return resp.json().get("data", [])
+            data = resp.json().get("data", [])
+            resp.close()
+            return data
         except requests.exceptions.HTTPError as e:
             if resp.status_code == 429 and attempt < MAX_RETRIES:
                 attempt += 1
@@ -84,7 +86,7 @@ def fetch_ads_batch(date1: str, date2: str, city: str = None, source: str = None
 def insert_ads_batch(cursor, ads):
     exclude_city = ['зеленоград', 'новая москва', 'область']
     exclude_district = ['нао', 'тао']
-    exclude_address = ['новомосковский', 'зеленоград', 'десёновское', 'троицк', 'коммунарка', 'красногорск', 'обл.', 'люберцы', 'балашиха','нао']
+    exclude_address = ['новомосковский', 'зеленоград', 'десёновское', 'троицк', 'коммунарка', 'красногорск', 'обл.', 'люберцы', 'балашиха', 'нао']
 
     for ad in ads:
         city = (ad.get("city") or "").lower()
@@ -159,15 +161,16 @@ def insert_ads_batch(cursor, ads):
 
 def main():
     conn = psycopg2.connect(DATABASE_URL)
-    cursor = conn.cursor()
 
-    # Начальный процессинг любых прошлых данных
-    cursor.execute("CALL process_all_ads();")
-    conn.commit()
+    # Начальная обработка прошлых данных
+    with conn.cursor() as init_cur:
+        init_cur.execute("CALL process_all_ads();")
+        conn.commit()
 
-    # Определяем точку продолжения
-    cursor.execute("SELECT MAX(time_source_updated) FROM ads;")
-    last_saved = cursor.fetchone()[0]
+    # Определяем точку старта
+    with conn.cursor() as cur:
+        cur.execute("SELECT MAX(time_source_updated) FROM ads;")
+        last_saved = cur.fetchone()[0]
     if last_saved:
         start_dt = last_saved + timedelta(seconds=1)
         logger.info(f"Resuming from last saved time {start_dt}")
@@ -178,48 +181,64 @@ def main():
         start_dt = datetime.strptime(DATE_START, '%Y-%m-%d')
         logger.info(f"No existing data, starting from DATE_START = {start_dt.date()}")
 
-    # Определяем конец периода
-    if DAYS_COUNT > 0:
-        end_dt = min(start_dt + timedelta(days=DAYS_COUNT), datetime.now())
-    else:
-        end_dt = datetime.now()
+    while True:
+        now = datetime.now()
+        end_dt = now - timedelta(hours=1)
+        total = 0
 
-    total = 0
-    current_day = start_dt
-    while current_day < end_dt:
-        day_start = current_day.strftime('%Y-%m-%d 00:00:00')
-        day_end = (current_day + timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')
-        logger.info(f"Processing {current_day.date()} ({day_start} — {day_end})")
-        next_start = day_start
+        if start_dt >= end_dt:
+            logger.info("Достигли текущего времени минус час, пауза 30 минут")
+            time.sleep(PAUSE_AFTER)
+            continue
 
-        while True:
-            batch = fetch_ads_batch(date1=next_start, date2=day_end, city="Москва", source="1,2,3,4", limit=BATCH_LIMIT)
-            if not batch:
-                break
+        current = start_dt
+        while current < end_dt:
+            period_end = min(current + timedelta(days=1), end_dt)
+            day_start = current.strftime('%Y-%m-%d %H:%M:%S')
+            day_end = period_end.strftime('%Y-%m-%d %H:%M:%S')
+            logger.info(f"Processing from {day_start} to {day_end}")
 
-            insert_ads_batch(cursor, batch)
-            conn.commit()
-            # Обработка вставленных объявлений сразу после каждой пачки
-            cursor.execute("CALL process_all_ads();")
-            conn.commit()
+            next_start = day_start
+            while True:
+                batch = fetch_ads_batch(
+                    date1=next_start,
+                    date2=day_end,
+                    city="Москва",
+                    source="1,2,3,4",
+                    limit=BATCH_LIMIT
+                )
+                if not batch:
+                    break
 
-            cnt = len(batch)
-            total += cnt
-            last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
-            next_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
-            logger.info(f"  Inserted {cnt} ads, processed, next start: {next_start}")
+                # Обработка пакета с открытием курсора в контексте
+                with conn.cursor() as batch_cur:
+                    insert_ads_batch(batch_cur, batch)
+                    conn.commit()
+                    batch_cur.execute("CALL process_all_ads();")
+                    conn.commit()
 
-            if cnt < BATCH_LIMIT:
-                break
+                cnt = len(batch)
+                total += cnt
+                last_time = datetime.fromisoformat(batch[-1]["time"]) + timedelta(seconds=1)
+                next_start = last_time.strftime('%Y-%m-%d %H:%M:%S')
+                logger.info(f"  Inserted {cnt} ads, next start: {next_start}")
 
+                if cnt < BATCH_LIMIT:
+                    break
+
+                time.sleep(BATCH_DELAY)
+
+            current = period_end
             time.sleep(BATCH_DELAY)
 
-        current_day += timedelta(days=1)
-        time.sleep(BATCH_DELAY)
+        logger.info(f"Цикл до current-1h завершен, всего обработано = {total}")
+        start_dt = end_dt
+        logger.info("Ждем 30 минут до следующего цикла")
+        time.sleep(PAUSE_AFTER)
 
-    logger.info(f"Done. Total inserted and processed for period: {total}")
-    cursor.close()
+    # хотя при вечном цикле сюда не дойдет, все курсоры в with закроются автоматически
     conn.close()
+
 
 if __name__ == "__main__":
     main()
